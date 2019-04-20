@@ -23,6 +23,7 @@
       dnf:
         name:
           - "@development-tools"
+          - selinux-policy
           - acpid
           - libtool
           - libudev-devel
@@ -200,6 +201,7 @@
         remote_src: true
         src: "{{ cras_workdir }}/src/{{ item }}"
         dest: "/usr/local/bin"
+        mode: 0755
       with_items:
         - cras
         - cras_test_client
@@ -286,6 +288,7 @@
       copy:
         src: files/usr/local/bin/eve-audio-ctl.sh
         dest: /usr/local/bin
+        mode: 0775
 
  ### touchpad tweak
 
@@ -300,3 +303,4 @@
       copy:
         src: files/etc/libinput/local-overrides.quirks
         dest: /etc/libinput/local-overrides.quirks
+
