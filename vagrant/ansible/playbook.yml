@@ -1,0 +1,296 @@
+---
+- hosts: all
+  vars:
+    - main_workdir: /opt/eve-linux/setup
+    - recovery_mount_point: "{{ main_workdir }}/recovery-mnt"
+    - eve_kernel_branch: release-R72-11316.B-chromeos-4.4
+    - eve_kernel_compiled_name: vmlinuz-4.4.164chromium-gd8c7defc
+    - eve_kernel_workdir: "{{ main_workdir }}/kernel" 
+    - eve_recovery_image: chromeos_11021.81.0_eve_recovery_stable-channel_mp.bin
+    - eve_recovery_image_sha256: 7e53d4888f7348130653787754dde70108303dfd2ce5dd0c0c30eab544f60baa
+    - adhd_version: master
+    - adhd_workdir: "{{ main_workdir }}/adhd"
+    - cras_workdir: "{{ adhd_workdir }}/cras"
+    - cras_configure_opts: "--disable-dbus --disable-webrtc-apm --with-socketdir=/var/run/cras"
+    - cras_lib_version: "0.0.0"
+    - system_lib_dir: "/usr/lib64"
+    - alsa_lib_dir: "{{ system_lib_dir }}/alsa-lib"
+    - login_user: vagrant
+
+  tasks:
+    - name: Install dev dependencies
+      become: true
+      dnf:
+        name:
+          - "@development-tools"
+          - acpid
+          - libtool
+          - libudev-devel
+          - sbc-devel
+          - alsa-lib-devel
+          - iniparser-devel
+          - ladspa-devel
+          - speex-devel
+          - speexdsp-devel
+          - python2-libselinux
+        state: latest 
+
+    - name: Create working dir to build packages
+      become: true
+      file:
+        path: "{{ main_workdir }}"
+        mode: 0777
+        state: directory
+
+#### Build & install chromium fork of linux kernel
+
+    - name: check if we've cloned the kernel source yet
+      register: kernel_cloned
+      stat:
+        path: "{{ eve_kernel_workdir }}"
+
+    - name: Clone eve kernel sources
+      when: kernel_cloned.stat.exists == false
+      git:
+        repo: https://chromium.googlesource.com/chromiumos/third_party/kernel
+        depth: 1
+        dest: "{{ eve_kernel_workdir }}" 
+        version: "{{ eve_kernel_branch }}"
+
+    - name: Copy kernel config file
+      copy:
+        src: files/eve-custom.config
+        dest: "{{ eve_kernel_workdir }}/.config"
+
+    - name: Check if we've built the kernel already
+      register: kernel_built
+      stat:
+        path: "{{ eve_kernel_workdir }}/vmlinux"
+
+    - name: Build kernel
+      when: kernel_built.stat.exists == False
+      shell: "make oldconfig && make -j15 && make -j15 modules"
+      args:
+        creates: "{{ eve_kernel_workdir }}/vmlinux"
+        chdir: "{{ eve_kernel_workdir }}"
+
+    - name: Check if we've installed the kernel already
+      register: kernel_installed
+      stat:
+       path: "/boot{{ eve_kernel_compiled_name }}"
+
+    - name: Install kernel
+      when: kernel_built.stat.exists == True
+      become: true
+      shell: "make modules_install && make install"
+      args:
+        creates: "/boot/{{ eve_kernel_compiled_name }}"
+        chdir: "{{ eve_kernel_workdir }}"
+
+ #### Copy files from eve recovery image 
+
+    - name: Download eve recovery image
+      get_url:
+        url: "https://dl.google.com/dl/edgedl/chromeos/recovery/{{ eve_recovery_image }}.zip"
+        dest: "{{ main_workdir }}/eve-recovery.zip"
+        checksum: "sha256:{{ eve_recovery_image_sha256 }}"
+
+    - name: Check if we've unzipped recovery image
+      register: image_unzipped
+      stat:
+        path: "{{ main_workdir }}/{{ eve_recovery_image }}"
+
+    - name: Unzip recovery image
+      when: image_unzipped.stat.exists == False
+      unarchive:
+        src: "{{ main_workdir }}/eve-recovery.zip"
+        dest: "{{ main_workdir }}"
+        remote_src: yes
+
+    - name: Map recovery image to loopback device
+      become: true
+      command: "kpartx -av {{ main_workdir }}/{{ eve_recovery_image }}"
+      args:
+        creates: /dev/mapper/loop0p3
+
+    - name: Create mount point
+      file:
+        path: "{{ recovery_mount_point }}"
+        state: directory
+
+    - name: Mount recovery image
+      become: true
+      mount:
+        path: "{{ recovery_mount_point }}"
+        src: /dev/mapper/loop0p3
+        fstype: ext2
+        opts: ro
+        state: mounted
+
+    - name: Ensure /opt/google exists
+      become: true
+      file:
+        path: /opt/google
+        state: directory
+
+    - name: Copy files from /opt/google on recovery image
+      become: true
+      command: "rsync -av {{ recovery_mount_point }}/opt/google/{{ item }} /opt/google"
+      with_items:
+        - disk
+        - dsm
+        - kbl-rt5514-hotword-support 
+        - touch
+
+    - name: Copy all firmware files from recovery image to /lib/firmware
+      become: true
+      command: "rsync -av {{ recovery_mount_point }}/lib/firmware/ /lib/firmware/"
+
+    - name: Ensure /usr/share/alsa/ucm exists
+      become: true
+      file:
+        path: /usr/share/alsa/ucm
+        state: directory
+
+    - name: Copy the alsa UCM configuration for eve's soundcard from recovery image
+      become: true
+      command: "rsync -av {{ recovery_mount_point }}/usr/share/alsa/ucm/kbl_r5514_5663_max /usr/share/alsa/ucm"
+
+
+    - name: Copy cras souncard config files from recovery image
+      become: true
+      command: "rsync -av {{ recovery_mount_point }}/etc/cras /usr/local/etc"
+
+    - name: Copy module blacklist file
+      become: true
+      copy:
+        src: files/lib/modprobe.d/blacklist.conf
+        dest: /lib/modprobe.d
+
+###### Build and install cras (chromium audio server)
+
+    - name: clone cras source
+      git:
+        repo: 'https://chromium.googlesource.com/chromiumos/third_party/adhd'
+        version: "{{ adhd_version }}"
+        dest: "{{ adhd_workdir }}"
+
+    - name: generate cras/config (failure expected)
+      command: make
+      args:
+        creates: "{{ cras_workdir }}/configure"
+        chdir: "{{ adhd_workdir }}"
+      ignore_errors: true
+
+    - name: configure cras
+      command: "./configure {{ cras_configure_opts }}"
+      args:
+        creates: "{{ cras_workdir }}/Makefile"
+        chdir: "{{ cras_workdir }}"
+
+    - name: build cras
+      command: "make"
+      args:
+        creates: "{{ cras_workdir }}/src/cras"
+        chdir: "{{ cras_workdir }}"
+
+    - name: install cras binaries
+      become: true
+      copy:
+        remote_src: true
+        src: "{{ cras_workdir }}/src/{{ item }}"
+        dest: "/usr/local/bin"
+      with_items:
+        - cras
+        - cras_test_client
+
+    - name: install cras library
+      become: true
+      copy:
+        remote_src: true
+        src: "{{ cras_workdir }}/src/.libs/libcras.so.{{ cras_lib_version }}"
+        dest: "{{ system_lib_dir }}"
+
+    - name: run ldconfig on cras library
+      become: true
+      command: "ldconfig -l {{ system_lib_dir }}/libcras.so.{{ cras_lib_version }}"
+
+    - name: install cras / alsa plugin libs
+      become: true
+      copy:
+        remote_src: true
+        src: "{{ cras_workdir }}/src/.libs/{{ item }}"
+        dest: "{{ alsa_lib_dir }}"
+      with_items:
+        - libasound_module_ctl_cras.so
+        - libasound_module_pcm_cras.so
+
+    - name: ensure /etc/alsa/conf.d exists
+      become: true
+      file:
+        path: /etc/alsa/conf.d
+        state: directory
+
+    - name: copy cras-enabled alsa config
+      become: true
+      copy:
+        src: files/etc/alsa/conf.d/10-cras.conf
+        dest: /etc/alsa/conf.d
+
+    - name: ensure /etc/pulse exists
+      become: true
+      file:
+        path: /etc/pulse
+        state: directory
+
+    - name: copy cras-enabled pulseaudio config
+      become: true
+      copy:
+        src: files/etc/pulse/default.pa
+        dest: /etc/pulse
+
+    - name: create cras group
+      become: true
+      group:
+        name: cras
+        state: present
+
+    - name: create cras user
+      become: true
+      user:
+        name: cras
+        group: cras
+        create_home: false
+        groups: audio
+
+    - name: add login user to cras group
+      become: true
+      user:
+        name: "{{ login_user }}"
+        groups: cras 
+
+    - name: add cras systemd service file
+      become: true
+      copy:
+        src: files/etc/systemd/system/cras.service
+        dest: /etc/systemd/system
+
+    - name: copy cras tmpfiles.d entry
+      become: true
+      copy:
+        src: files/etc/tmpfiles.d/cras.conf
+        dest: /etc/tmpfiles.d
+
+ ### touchpad tweak
+
+    - name: Ensure /etc/libinput exists
+      become: true
+      file:
+        path: /etc/libinput
+        state: directory
+
+    - name: Copy touchpad pressure tweak file
+      become: true
+      copy:
+        src: files/etc/libinput/local-overrides.quirks
+        dest: /etc/libinput/local-overrides.quirks

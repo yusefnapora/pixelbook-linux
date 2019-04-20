@@ -1,0 +1,6 @@
+[Touchpad pressure override]
+MatchUdevType=touchpad
+MatchName=ACPI0C50:00 18D1:5028 Touchpad
+MatchDMIModalias=dmi:*svnGoogle:*pnEve*
+AttrPressureRange=10:5
+AttrPalmPressureThreshold=50
