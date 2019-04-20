@@ -281,6 +281,12 @@
         src: files/etc/tmpfiles.d/cras.conf
         dest: /etc/tmpfiles.d
 
+    - name: copy eve-audio-ctl shell script
+      become: true
+      copy:
+        src: files/usr/local/bin/eve-audio-ctl.sh
+        dest: /usr/local/bin
+
  ### touchpad tweak
 
     - name: Ensure /etc/libinput exists
