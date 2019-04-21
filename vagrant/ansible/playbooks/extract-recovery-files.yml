@@ -90,6 +90,7 @@
       command: "rsync -av {{ recovery_mount_point }}/etc/cras {{ cras_etc_dir }}"
 
     - name: Unmount recovery image
+      become: true
       mount:
         path: "{{ recovery_mount_point }}"
         state: absent
