@@ -159,3 +159,17 @@
         dest: /usr/local/bin
         mode: 0775
 
+    - name: copy headphone jack listener systemd service file
+      become: true
+      copy:
+        src: files/etc/systemd/system/eve-headphone-jack-listener.service
+        dest: /etc/systemd/system
+
+    - name: enable acpid service (needed by headphone jack listener script)
+      become: true
+      command: "systemctl enable acpid"
+
+    - name: enable headphone jack listener service
+      become: true
+      command: "systemctl enable eve-headphone-jack-listener"
+
