@@ -1,0 +1,17 @@
+---
+- hosts: all
+  tasks:
+
+ ### Create SELinux policy for bluetooth module
+
+    - name: copy SELinux policy file
+      copy:
+        src: files/fix-bluetooth/eve-bluetooth.pp
+        dest: /tmp
+
+    - name: enable SELinux policy
+      become: true
+      command: "semodule -i eve-bluetooth.pp"
+      args:
+        chdir: "/tmp"
+        
