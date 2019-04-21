@@ -1,0 +1,60 @@
+---
+- name: Install dev dependencies
+  become: true
+  dnf:
+    name:
+      - "@development-tools"
+    state: latest 
+
+- name: Create working dir to build packages
+  become: true
+  file:
+    path: "{{ main_workdir }}"
+    mode: 0777
+    state: directory
+
+#### Build & install chromium fork of linux kernel
+
+- name: check if we've cloned the kernel source yet
+  register: kernel_cloned
+  stat:
+    path: "{{ eve_kernel_workdir }}"
+
+- name: Clone eve kernel sources
+  when: kernel_cloned.stat.exists == false
+  git:
+    repo: https://chromium.googlesource.com/chromiumos/third_party/kernel
+    depth: 1
+    dest: "{{ eve_kernel_workdir }}" 
+    version: "{{ eve_kernel_branch }}"
+
+- name: Copy kernel config file
+  copy:
+    src: files/eve-custom.config
+    dest: "{{ eve_kernel_workdir }}/.config"
+
+- name: Check if we've built the kernel already
+  register: kernel_built
+  stat:
+    path: "{{ eve_kernel_workdir }}/vmlinux"
+
+- name: Build kernel
+  when: kernel_built.stat.exists == False
+  shell: "make oldconfig && make -j15 && make -j15 modules"
+  args:
+    creates: "{{ eve_kernel_workdir }}/vmlinux"
+    chdir: "{{ eve_kernel_workdir }}"
+
+- name: Check if we've installed the kernel already
+  register: kernel_installed
+  stat:
+    path: "/boot{{ eve_kernel_compiled_name }}"
+
+- name: Install kernel
+  when: kernel_built.stat.exists == True
+  become: true
+  shell: "make modules_install && make install"
+  args:
+    creates: "/boot/{{ eve_kernel_compiled_name }}"
+    chdir: "{{ eve_kernel_workdir }}"
+

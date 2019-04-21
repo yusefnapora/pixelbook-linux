@@ -1,0 +1,26 @@
+---
+- hosts: all
+  tasks:
+
+ ### blacklist intel sound module (required for audio)
+    - name: Copy module blacklist file
+      become: true
+      copy:
+        src: files/lib/modprobe.d/blacklist.conf
+        dest: /lib/modprobe.d
+
+
+ ### touchpad tweak
+
+    - name: Ensure /etc/libinput exists
+      become: true
+      file:
+        path: /etc/libinput
+        state: directory
+
+    - name: Copy touchpad pressure tweak file
+      become: true
+      copy:
+        src: files/etc/libinput/local-overrides.quirks
+        dest: /etc/libinput/local-overrides.quirks
+

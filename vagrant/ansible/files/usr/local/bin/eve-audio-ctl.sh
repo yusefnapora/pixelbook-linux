@@ -1,1 +1,0 @@
-../../../../../../audio-scripts/eve-audio-ctl.sh

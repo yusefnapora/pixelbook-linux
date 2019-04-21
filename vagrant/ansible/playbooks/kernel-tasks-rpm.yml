@@ -1,0 +1,20 @@
+---
+- name: Copy rpm files
+  copy:
+    src: "{{ rpm_src_dir }}/{{ item }}"
+    dest: /tmp
+  with_items:
+    - "{{ kernel_rpm }}"
+    - "{{ kernel_devel_rpm }}"
+    - "{{ kernel_headers_rpm }}"
+
+- name: Install kernel rpms
+  become: true
+  dnf:
+    name: 
+      - "/tmp/{{ kernel_rpm }}"
+      - "/tmp/{{ kernel_devel_rpm }}"
+      - "/tmp/{{ kernel_headers_rpm }}"
+    state: installed
+    allow_downgrade: true
+

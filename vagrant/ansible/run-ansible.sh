@@ -11,4 +11,4 @@ fi
 
 echo "running ansible. this will take about an hour on the first run"
 
-exec ansible-playbook playbook.yml -i hosts -K
+exec ansible-playbook playbook.yml -i hosts -K -e "login_user=$USER"

@@ -1,0 +1,22 @@
+---
+- hosts: all
+  vars:
+    - main_workdir: /opt/eve-linux/setup
+
+  tasks:
+    - name: Install dev dependencies
+      become: true
+      dnf:
+        name:
+          - "@development-tools"
+          - selinux-policy
+          - python2-libselinux
+        state: latest 
+
+    - name: Create working dir to build packages
+      become: true
+      file:
+        path: "{{ main_workdir }}"
+        mode: 0777
+        state: directory
+
