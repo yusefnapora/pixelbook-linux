@@ -24,3 +24,25 @@
         src: files/etc/libinput/local-overrides.quirks
         dest: /etc/libinput/local-overrides.quirks
 
+### keyboard backlight
+
+    - name: Ensure "leds" group exists
+      group:
+        name: leds
+
+    - name: Ensure login user is in "leds" group
+      become: true
+      command: "usermod -aG leds {{ login_user }}"
+
+    - name: Copy pixelbook udev rules file
+      become: true
+      copy:
+        src: files/lib/udev/rules.d/99-pixelbook.rules
+        dest: /lib/udev/rules.d
+
+    - name: Copy brightness control script
+      become: true
+      copy:
+        src: files/usr/local/bin/eve-keyboard-brightness.sh
+        dest: /usr/local/bin
+        mode: 0755
