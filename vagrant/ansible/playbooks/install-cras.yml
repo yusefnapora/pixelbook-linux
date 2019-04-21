@@ -142,6 +142,10 @@
         src: files/etc/systemd/system/cras.service
         dest: /etc/systemd/system
 
+    - name: enable cras systemd service
+      become: true
+      command: "systemctl enable cras"
+
     - name: copy cras tmpfiles.d entry
       become: true
       copy:
