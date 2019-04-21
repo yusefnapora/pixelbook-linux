@@ -130,13 +130,11 @@
         name: cras
         group: cras
         create_home: false
-        groups: audio
+        groups: cras,audio
 
     - name: add login user to cras group
       become: true
-      user:
-        name: "{{ login_user }}"
-        groups: cras 
+      command: "usermod -aG cras {{ login_user }}"
 
     - name: add cras systemd service file
       become: true
