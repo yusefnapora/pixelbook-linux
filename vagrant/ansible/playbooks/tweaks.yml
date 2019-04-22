@@ -1,5 +1,7 @@
 ---
 - hosts: all
+  vars:
+    - eve_keyboard_assistant_keycode: rightmeta # Right "super" key
   tasks:
 
  ### blacklist intel sound module (required for audio)
@@ -46,3 +48,18 @@
         src: files/usr/local/bin/eve-keyboard-brightness.sh
         dest: /usr/local/bin
         mode: 0755
+
+
+### Map google assistant key to super
+#
+#   note: change eve_keyboard_assistant_keycode var if you want a 
+#   different keycode for the google assistant key
+
+    - name: Copy keyboard hwdb file to remap assistant key
+      become: true
+      template:
+        src: templates/61-eve-keyboard.hwdb.j2
+        dest: /lib/udev/hwdb.d/61-eve-keyboard.hwdb
+        mode: 0600
+        owner: root
+        group: root
