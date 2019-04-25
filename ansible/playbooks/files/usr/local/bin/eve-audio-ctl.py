@@ -221,7 +221,7 @@ class EveAudioController(object):
 
     def mic_disconnected(self):
         print('mic disconnected, switching to internal mic')
-        self.set_output('internal_mic')
+        self.set_input('internal_mic')
 
     def jack_listen(self):
         print()
