@@ -26,7 +26,9 @@
           - ladspa-devel
           - speex-devel
           - speexdsp-devel
+          - python3
         state: latest 
+
 
     - name: Create working dir to build packages
       become: true
@@ -152,10 +154,10 @@
         src: files/etc/tmpfiles.d/cras.conf
         dest: /etc/tmpfiles.d
 
-    - name: copy eve-audio-ctl shell script
+    - name: copy eve-audio-ctl python script
       become: true
       copy:
-        src: files/usr/local/bin/eve-audio-ctl.sh
+        src: files/usr/local/bin/eve-audio-ctl.py
         dest: /usr/local/bin
         mode: 0775
 

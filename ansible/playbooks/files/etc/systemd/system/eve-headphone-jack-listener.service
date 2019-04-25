@@ -9,7 +9,7 @@ Restart=always
 RestartSec=1
 User=cras
 Group=cras
-ExecStart=/usr/local/bin/eve-audio-ctl.sh -o headphones -i internal -l
+ExecStart=/usr/local/bin/eve-audio-ctl.py -o headphone -i internal_mic -j
 
 [Install]
 WantedBy=multi-user.target
