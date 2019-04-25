@@ -1,0 +1,51 @@
+---
+- hosts: all
+  become: true
+  vars:
+    - swap_file_dir: /var/swap
+    - swap_filename: swapfile
+    - swap_file_path: "{{ swap_file_dir }}/{{ swap_filename }}"
+    - swap_size_mb: 8192
+  tasks:
+    - name: ensure swap directory exists
+      file:
+        path: "{{ swap_file_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0700
+
+    - name: create swap file
+      command: "dd if=/dev/zero of={{ swap_file_path }} bs=1048576 count={{ swap_size_mb }}"
+      args:
+        creates: "{{ swap_file_path }}"
+
+    - name: set swap file permissions
+      file:
+        path: "{{ swap_file_path }}"
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: check swap file type
+      command: "file {{ swap_file_path }}"
+      register: swapfile
+
+    - name: make swap file
+      when: swapfile.stdout.find("swap file") == -1
+      command: "mkswap {{ swap_file_path }}"
+
+
+    - name: make swap entry in fstab
+      mount:
+        name: none
+        src: "{{ swap_file_path }}"
+        fstype: swap
+        opts: sw
+        passno: 0
+        dump: 0
+        state: present
+
+    - name: mount swap
+      command: "swapon {{ swap_file_path }}"
+      when: ansible_swaptotal_mb < 1
