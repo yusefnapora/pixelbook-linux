@@ -75,6 +75,15 @@
         - cras
         - cras_test_client
 
+    - name: create special dir needed by cras_test_client
+      become: true
+      file:
+        path: /usr/local/bin/.libs
+        state: directory
+        owner: cras
+        group: cras
+        mode: 0775
+
     - name: install cras library
       become: true
       copy:
