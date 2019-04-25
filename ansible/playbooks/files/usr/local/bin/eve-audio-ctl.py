@@ -177,7 +177,8 @@ class EveAudioController(object):
         if current is not None and current.pretty_id() == pretty_id:
             return
 
-        self.save_volume(direction, current.pretty_id())
+        if current is not None:
+            self.save_volume(direction, current.pretty_id())
 
         current_vol = self.pulse.get_volume(direction)
         vol = self.device_volumes.get(pretty_id, current_vol)
