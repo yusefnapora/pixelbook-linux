@@ -29,6 +29,7 @@
 ### keyboard backlight
 
     - name: Ensure "leds" group exists
+      become: true
       group:
         name: leds
 
