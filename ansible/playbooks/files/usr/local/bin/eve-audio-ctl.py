@@ -132,8 +132,11 @@ class PulseClient(object):
         else:
             return 0
 
-        p = subprocess.run(cmd, shell=True, check=True, capture_output=True)
-        return int(p.stdout)
+        p = subprocess.run(cmd, shell=True, capture_output=True)
+        try:
+            return int(p.stdout.strip())
+        except:
+            return -1
 
     def set_volume(self, direction, vol):
         if direction == NodeDirection.OUTPUT:
@@ -169,7 +172,10 @@ class EveAudioController(object):
             json.dump({'device_volumes': self.device_volumes}, f)
 
     def save_volume(self, direction, pretty_id):
-        self.device_volumes[pretty_id] = self.pulse.get_volume(direction)
+        vol = self.pulse.get_volume(direction)
+        if vol < 0:
+            return
+        self.device_volumes[pretty_id] = vol
         self.save_state()
 
     def set_active_device(self, direction, pretty_id):
@@ -180,11 +186,11 @@ class EveAudioController(object):
         if current is not None:
             self.save_volume(direction, current.pretty_id())
 
-        current_vol = self.pulse.get_volume(direction)
-        vol = self.device_volumes.get(pretty_id, current_vol)
+        vol = self.device_volumes.get(pretty_id, None)
 
         self.cras.set_active(direction, pretty_id)
-        self.pulse.set_volume(direction, vol)
+        if vol is not None:
+            self.pulse.set_volume(direction, vol)
         self.cras.refresh_status()
 
     def set_input(self, pretty_id):
