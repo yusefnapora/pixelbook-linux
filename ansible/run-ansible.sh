@@ -9,7 +9,7 @@ function is_installed {
 }
 
 # install ansible if missing
-if [ ! is_installed ansible-playbook ]; then
+if ! is_installed ansible-playbook ; then
 	echo "ansible not found, installing"
 	sudo dnf install -y ansible
 fi
