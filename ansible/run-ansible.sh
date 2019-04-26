@@ -16,4 +16,4 @@ fi
 
 echo "installing configuration with ansible. this may take a little while."
 
-exec ansible-playbook playbook.yml -i hosts -K 
+exec ansible-playbook playbook.yml -i hosts -K -e "login_user=$USER"

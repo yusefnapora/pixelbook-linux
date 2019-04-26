@@ -1,7 +1,7 @@
 ---
 # common to all playbooks
 - main_workdir: /opt/eve-linux-setup
-- login_user: "{{ lookup('env','USER') }}" 
+- login_user: vagrant # override at command line with local username
 
 
 # extract-recovery-files.yml
@@ -23,7 +23,7 @@
 
 # install-kernel.yml
 - kernel_install_type: src
-- force_install_kernel: false
+- force_kernel_install: false
 
 # vars for rpm install
 - rpm_kernel_name: 4.4.164chromium_gd8c7defc-2
