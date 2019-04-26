@@ -35,8 +35,16 @@
       become: true
       command: "kpartx -av {{ main_workdir }}/{{ eve_recovery_image }}"
       register: kpartx_output
-      args:
-        creates: /dev/mapper/loop8p3
+
+
+    - name: Find mapper device to use for mounting image
+      set_fact:
+        mapper_device: "{{ kpartx_output.stdout | regex_search(regexp, '\\1') | first }}"
+      vars:
+        regexp: '(loop[0-9]p3)'
+
+    - debug:
+        msg: "mapper device: {{ mapper_device }}"
 
     - name: Create mount point
       file:
@@ -47,7 +55,7 @@
       become: true
       mount:
         path: "{{ recovery_mount_point }}"
-        src: /dev/mapper/loop8p3
+        src: "/dev/mapper/{{ mapper_device }}" 
         fstype: ext2
         opts: ro
         state: mounted
