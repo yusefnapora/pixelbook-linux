@@ -1,34 +1,9 @@
 ---
 - hosts: all
-  vars:
-    - main_workdir: /opt/eve-linux/setup
-    - adhd_version: master
-    - adhd_workdir: "{{ main_workdir }}/adhd"
-    - cras_workdir: "{{ adhd_workdir }}/cras"
-    - cras_configure_opts: "--disable-dbus --disable-webrtc-apm --with-socketdir=/var/run/cras"
-    - cras_lib_version: "0.0.0"
-    - system_lib_dir: "/usr/lib64"
-    - alsa_lib_dir: "{{ system_lib_dir }}/alsa-lib"
-    - login_user: vagrant
+  vars_files:
+    - vars.yml
 
   tasks:
-    - name: Install dev dependencies
-      become: true
-      dnf:
-        name:
-          - "@development-tools"
-          - acpid                   # for acpi_listener, needed for headset jack detection
-          - libtool
-          - libudev-devel
-          - sbc-devel
-          - alsa-lib-devel
-          - iniparser-devel
-          - ladspa-devel
-          - speex-devel
-          - speexdsp-devel
-          - python3
-        state: latest 
-
 
     - name: Create working dir to build packages
       become: true

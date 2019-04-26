@@ -1,21 +1,8 @@
 ---
 - hosts: all
+  vars_files:
+    - vars.yml
   vars:
-# set to "src" to build kernel from source instead of using binary install
-    - kernel_install_type: rpm
-
-# set to true to skip the check for existing kernel and force reinstall
-    - force_kernel_install: false
-
-# vars for rpm install
-    - rpm_kernel_name: 4.4.164chromium_gd8c7defc-2
-    - rpm_src_dir: "kernel-rpms"
-
-# vars for source build
-    - main_workdir: /opt/eve-linux/setup
-    - eve_kernel_branch: release-R72-11316.B-chromeos-4.4
-    - eve_kernel_compiled_name: vmlinuz-4.4.164chromium-gd8c7defc
-
 # derived vars (no need to edit)
     - kernel_rpm: "kernel-{{ rpm_kernel_name }}.x86_64.rpm"
     - kernel_devel_rpm: "kernel-devel-{{ rpm_kernel_name }}.x86_64.rpm"

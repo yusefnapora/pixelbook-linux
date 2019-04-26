@@ -1,11 +1,7 @@
 ---
 - hosts: all
-  vars:
-    - main_workdir: /opt/eve-linux/setup
-    - recovery_mount_point: "{{ main_workdir }}/recovery-mnt"
-    - eve_recovery_image: chromeos_11021.81.0_eve_recovery_stable-channel_mp.bin
-    - eve_recovery_image_sha256: 7e53d4888f7348130653787754dde70108303dfd2ce5dd0c0c30eab544f60baa
-    - cras_etc_dir: /usr/local/etc
+  vars_files:
+    - vars.yml
 
   tasks:
     - name: Create working dir to build packages

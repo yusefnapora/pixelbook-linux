@@ -1,11 +1,4 @@
 ---
-- name: Install dev dependencies
-  become: true
-  dnf:
-    name:
-      - "@development-tools"
-    state: latest 
-
 - name: Create working dir to build packages
   become: true
   file:
@@ -30,7 +23,7 @@
 
 - name: Copy kernel config file
   copy:
-    src: files/eve-custom.config
+    src: "files/{{ eve_kernel_config_file }}"
     dest: "{{ eve_kernel_workdir }}/.config"
 
 - name: Check if we've built the kernel already
