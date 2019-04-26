@@ -34,8 +34,9 @@
     - name: Map recovery image to loopback device
       become: true
       command: "kpartx -av {{ main_workdir }}/{{ eve_recovery_image }}"
+      register: kpartx_output
       args:
-        creates: /dev/mapper/loop0p3
+        creates: /dev/mapper/loop8p3
 
     - name: Create mount point
       file:
@@ -46,7 +47,7 @@
       become: true
       mount:
         path: "{{ recovery_mount_point }}"
-        src: /dev/mapper/loop0p3
+        src: /dev/mapper/loop8p3
         fstype: ext2
         opts: ro
         state: mounted

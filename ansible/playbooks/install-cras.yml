@@ -28,7 +28,7 @@
       ignore_errors: true
 
     - name: configure cras
-      command: "./configure {{ cras_configure_opts }}"
+      command: "{{ cras_configure_env }} ./configure {{ cras_configure_opts }}"
       args:
         creates: "{{ cras_workdir }}/Makefile"
         chdir: "{{ cras_workdir }}"
@@ -49,6 +49,8 @@
       with_items:
         - cras
         - cras_test_client
+
+
 
     - name: install cras library
       become: true
@@ -108,6 +110,29 @@
         group: cras
         create_home: false
         groups: cras,audio
+
+    # the cras_test_client script we're using is just a wrapper
+    # for the real cras_test_client that needs to be in a
+    # .libs directory next to the wrapper script.
+    # this is pretty ugly, but I'm just dumping the .libs
+    # dir into /usr/local/bin so everything works
+    - name: ensure cras libs dir exists
+      become: true
+      file:
+        path: /usr/local/bin/.libs
+        state: directory
+        owner: cras
+        group: cras
+        mode: "0775"
+
+    - name: install cras_test_client binary
+      become: true
+      copy:
+        remote_src: true
+        src: "{{ cras_workdir }}/src/.libs/cras_test_client"
+        dest: /usr/local/bin/.libs
+        owner: cras
+        group: cras
 
     - name: add login user to cras group
       become: true

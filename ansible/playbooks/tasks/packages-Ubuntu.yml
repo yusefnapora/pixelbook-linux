@@ -8,16 +8,21 @@
       - libtool
       - python
       - python3
+      - pkg-config
+
+      # Needed for mounting recovery image
+      - kpartx
 
       # Audio / CRAS dependencies
       - acpid
       - libudev-dev
-      - sbc-dev
+      - libsbc-dev
       - libalsaplayer-dev
       - libiniparser-dev
       - ladspa-sdk
       - libspeex-dev
       - libspeexdsp-dev
+      - libasound2-dev
     state: latest 
 
 - name: Create working dir to build packages
