@@ -7,6 +7,11 @@ function get_current_brightness {
     cat $DEVFILE
 }
 
+function set_brightness {
+    local brightness=$1
+    echo $brightness > $DEVFILE
+}
+
 function adjust_relative {
     local offset=$1
     let "new = $(get_current_brightness) + $offset"
@@ -33,6 +38,6 @@ if [ $brightness -gt 100 ]; then
     brightness=100
 fi
 
-echo $brightness > $DEVFILE
+set_brightness $brightness
 
 echo "set backlight brightness to $(get_current_brightness)"
