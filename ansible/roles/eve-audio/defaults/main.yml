@@ -1,0 +1,13 @@
+---
+# common to all playbooks
+main_workdir: /opt/eve-linux-setup
+login_user: vagrant # override at command line with local username
+
+adhd_version: "52ee294de65ec6703f983dae81b92ac0a6bfda17"
+adhd_workdir: "{{ main_workdir }}/adhd"
+cras_workdir: "{{ adhd_workdir }}/cras"
+cras_configure_opts: "--disable-dbus --disable-webrtc-apm --with-socketdir=/var/run/cras"
+cras_configure_env: "CFLAGS='-I/usr/include/iniparser'"
+cras_lib_version: "0.0.0"
+system_lib_dir: "/usr/lib/x86_64-linux-gnu"
+alsa_lib_dir: "{{ system_lib_dir }}/alsa-lib"

@@ -1,0 +1,15 @@
+[Unit]
+Description=ChromeOS Audio Server (cras)
+After=audio.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=cras
+Group=cras
+ExecStart=/usr/local/bin/cras --syslog_mask=7
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,170 @@
+---
+- name: Create working dir to build packages
+  become: true
+  file:
+    path: "{{ main_workdir }}"
+    mode: 0777
+    state: directory
+
+###### Build and install cras (chromium audio server)
+
+- name: clone cras source
+  git:
+    repo: 'https://chromium.googlesource.com/chromiumos/third_party/adhd'
+    version: "{{ adhd_version }}"
+    dest: "{{ adhd_workdir }}"
+
+- name: generate cras/config (failure expected)
+  command: make
+  args:
+    creates: "{{ cras_workdir }}/configure"
+    chdir: "{{ adhd_workdir }}"
+  ignore_errors: true
+
+- name: configure cras
+  command: "env {{ cras_configure_env }} ./configure {{ cras_configure_opts }}"
+  args:
+    creates: "{{ cras_workdir }}/Makefile"
+    chdir: "{{ cras_workdir }}"
+
+- name: build cras
+  command: "make"
+  args:
+    creates: "{{ cras_workdir }}/src/cras"
+    chdir: "{{ cras_workdir }}"
+
+- name: install cras binaries
+  become: true
+  copy:
+    remote_src: true
+    src: "{{ cras_workdir }}/src/{{ item }}"
+    dest: "/usr/local/bin"
+    mode: 0755
+  with_items:
+    - cras
+    - cras_test_client
+
+- name: install cras library
+  become: true
+  copy:
+    remote_src: true
+    src: "{{ cras_workdir }}/src/.libs/libcras.so.{{ cras_lib_version }}"
+    dest: "{{ system_lib_dir }}"
+
+- name: run ldconfig on cras library
+  become: true
+  command: "ldconfig -l {{ system_lib_dir }}/libcras.so.{{ cras_lib_version }}"
+
+- name: install cras / alsa plugin libs
+  become: true
+  copy:
+    remote_src: true
+    src: "{{ cras_workdir }}/src/.libs/{{ item }}"
+    dest: "{{ alsa_lib_dir }}"
+  with_items:
+    - libasound_module_ctl_cras.so
+    - libasound_module_pcm_cras.so
+
+- name: ensure /etc/alsa/conf.d exists
+  become: true
+  file:
+    path: /etc/alsa/conf.d
+    state: directory
+
+- name: copy cras-enabled alsa config
+  become: true
+  copy:
+    src: cras-alsa.conf
+    dest: /etc/alsa/conf.d/10-cras.conf
+
+- name: ensure /etc/pulse exists
+  become: true
+  file:
+    path: /etc/pulse
+    state: directory
+
+- name: copy cras-enabled pulseaudio config
+  become: true
+  copy:
+    src: pulse-default.pa
+    dest: /etc/pulse/default.pa
+
+- name: create cras group
+  become: true
+  group:
+    name: cras
+    state: present
+
+- name: create cras user
+  become: true
+  user:
+    name: cras
+    group: cras
+    create_home: false
+    groups: cras,audio
+
+# the cras_test_client script we're using is just a wrapper
+# for the real cras_test_client that needs to be in a
+# .libs directory next to the wrapper script.
+# this is pretty ugly, but I'm just dumping the .libs
+# dir into /usr/local/bin so everything works
+- name: ensure cras libs dir exists
+  become: true
+  file:
+    path: /usr/local/bin/.libs
+    state: directory
+    owner: cras
+    group: cras
+    mode: "0775"
+
+- name: install cras_test_client binary
+  become: true
+  copy:
+    remote_src: true
+    src: "{{ cras_workdir }}/src/.libs/cras_test_client"
+    dest: /usr/local/bin/.libs
+    owner: cras
+    group: cras
+
+- name: add login user to cras group
+  become: true
+  command: "usermod -aG cras {{ login_user }}"
+
+- name: add cras systemd service file
+  become: true
+  copy:
+    src: cras.service
+    dest: /etc/systemd/system/cras.service
+
+- name: enable cras systemd service
+  become: true
+  command: "systemctl enable cras"
+
+- name: copy cras tmpfiles.d entry
+  become: true
+  copy:
+    src: cras-tmpfiles.conf
+    dest: /etc/tmpfiles.d/cras.conf
+
+- name: copy eve-audio-ctl python script
+  become: true
+  copy:
+    src: eve-audio-ctl.py
+    dest: /usr/local/bin/eve-audio-ctl.py
+    mode: 0775
+
+- name: copy headphone jack listener systemd service file
+  become: true
+  copy:
+    src: eve-headphone-jack-listener.service
+    dest: /etc/systemd/system/eve-headphone-jack-listener.service
+    mode: 0644
+
+- name: enable acpid service (needed by headphone jack listener script)
+  become: true
+  command: "systemctl enable acpid"
+
+- name: enable headphone jack listener service
+  become: true
+  command: "systemctl enable eve-headphone-jack-listener"
+

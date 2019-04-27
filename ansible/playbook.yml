@@ -14,8 +14,9 @@
     include_role: 
       name: eve-kernel
 
-  #- name: Install Chrome Audio Server and sound setup files
-  #  include_role: eve-audio
+  - name: Install Chrome Audio Server and sound setup files
+    include_role:
+      name: eve-audio
 
   #- name: Install misc tweaks
   #  include_role: eve-tweaks

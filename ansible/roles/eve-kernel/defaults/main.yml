@@ -5,7 +5,7 @@ login_user: vagrant # override at command line with local username
 
 # install-kernel.yml
 kernel_install_type: deb
-force_kernel_install: true # change back before merge
+force_kernel_install: false 
 
 # vars for source build
 eve_kernel_branch: release-R75-12105.B-chromeos-4.4
