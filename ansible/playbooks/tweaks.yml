@@ -64,3 +64,11 @@
         mode: 0600
         owner: root
         group: root
+
+    - name: Update hwdb to load keyboard rules
+      become: true
+      command: "udevadm hwdb --update"
+
+    - name: Trigger udev to apply keyboard rules
+      become: true
+      command: "udevadm trigger"
