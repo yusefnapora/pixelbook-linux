@@ -29,7 +29,7 @@ a quite clever means of running linux inside a container (which is itself inside
 
 While I immensely respect what the Chromium team is doing with Crostini, it's just not workable for me as a primary
 workstation in its current state. When I discovered that you could install a real UEFI firmware and install "real linux",
-I decided to give it a try, and the result was close enought to great that I decided to see if I could take it the rest
+I decided to give it a try, and the result was close enough to great that I decided to see if I could take it the rest
 of the way there.
 
 ## Current Status
