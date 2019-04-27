@@ -54,8 +54,10 @@
 ### Map google assistant key to super
 #
 #   note: change eve_keyboard_assistant_keycode var if you want a 
-#   different keycode for the google assistant key
-
+#   different keycode for the google assistant key.
+#
+#   you can also set eve_keyboard_search_keycode to remap the search
+#   key from its default of Left Super (keycode leftmeta)
     - name: Copy keyboard hwdb file to remap assistant key
       become: true
       template:

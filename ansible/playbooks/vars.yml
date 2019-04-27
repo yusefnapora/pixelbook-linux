@@ -3,6 +3,9 @@
 - main_workdir: /opt/eve-linux-setup
 - login_user: vagrant # override at command line with local username
 
+# tweaks.yml
+- eve_keyboard_search_keycode: leftmeta
+- eve_keyboard_assistant_keycode: rightmeta
 
 # extract-recovery-files.yml
 - recovery_mount_point: "{{ main_workdir }}/recovery_mnt"
@@ -26,12 +29,10 @@
 - kernel_install_type: src
 - force_kernel_install: false
 
-# vars for rpm install
-- rpm_kernel_name: 4.4.164chromium_gd8c7defc-2
-- rpm_src_dir: "kernel-rpms"
+# vars for deb package install
+- kernel_deb_zip_url: https://github.com/yusefnapora/pixelbook-linux-hacks/releases/download/v0.1/ubuntu-kernel-debs-4.4.178chromium-g4245c5e1.zip
 
 # vars for source build
 - eve_kernel_branch: release-R75-12105.B-chromeos-4.4
 - eve_kernel_compiled_name: vmlinuz-4.4.178chromium-g09559f81
 - eve_kernel_config_file: eve-R75-12105.B-4.4.178.config
-

@@ -242,13 +242,16 @@ and creating a `/etc/libinput/local-overrides.quirks` file.
 
 The automatic install will add that file with values that feel right on my machine - feel free to edit it if you prefer a different feel.
 
-### Google Assistant key
+### Remapping non-standard keyboard keys
 
-The Pixelbook keyboard has two non-standard keys, the "hamburger" key in the upper right, and the Google Assistant key betweeen left control and left alt.
-The hamburger key is automatically recognized as F13, but the assistant key is ignored.
+The Pixelbook keyboard has three non-standard keys, the search key that takes the place of Caps Lock, the "hamburger" key in the upper right, and the Google Assistant key betweeen left control and left alt.
+The hamburger key is automatically recognized as F13, and search gets mapped to Left Super, but the assistant key is ignored.
 
-The automatic install adds a `/lib/udev/hwdb.d/61-eve-keyboard.hwdb` file that remaps the assistant key to Super. If you'd prefer a
-different key, see [Running the install script](#running-the-install-script) for details on how to customize.
+The automatic install adds a `/lib/udev/hwdb.d/61-eve-keyboard.hwdb` file that remaps the assistant key to Right Super. 
+If you'd prefer a different key, or to map the search key to something else,
+see [Running the install script](#running-the-install-script) for details on how to customize.
+
+
 
 ## Installation
 
