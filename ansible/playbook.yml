@@ -1,33 +1,21 @@
 ---
 - hosts: all
-  vars:
-    - main_workdir: /opt/eve-linux/setup
-    - recovery_mount_point: "{{ main_workdir }}/recovery-mnt"
-    - eve_kernel_branch: release-R72-11316.B-chromeos-4.4
-    - eve_kernel_compiled_name: vmlinuz-4.4.164chromium-gd8c7defc
-    - eve_kernel_workdir: "{{ main_workdir }}/kernel" 
-    - eve_recovery_image: chromeos_11021.81.0_eve_recovery_stable-channel_mp.bin
-    - eve_recovery_image_sha256: 7e53d4888f7348130653787754dde70108303dfd2ce5dd0c0c30eab544f60baa
-    - adhd_version: master
-    - adhd_workdir: "{{ main_workdir }}/adhd"
-    - cras_workdir: "{{ adhd_workdir }}/cras"
-    - cras_configure_opts: "--disable-dbus --disable-webrtc-apm --with-socketdir=/var/run/cras"
-    - cras_lib_version: "0.0.0"
-    - system_lib_dir: "/usr/lib64"
-    - alsa_lib_dir: "{{ system_lib_dir }}/alsa-lib"
-    - login_user: vagrant
 
-- name: Install pre-requisites
-  import_playbook: playbooks/install-prereqs.yml
+  tasks:
+  - name: Install pre-requisites 
+    include_role:
+      name: common 
 
-- name: Extract files from eve recovery image
-  import_playbook: playbooks/extract-recovery-files.yml
+  - name: Extract files from eve recovery image
+    include_role:
+      name: eve-recovery-files
 
-- name: Install chromium fork of linux kernel
-  import_playbook: playbooks/install-kernel.yml
+  - name: Install chromium fork of linux kernel
+    include_role: 
+      name: eve-kernel
 
-- name: Install Chrome Audio Server and sound setup files
-  import_playbook: playbooks/install-cras.yml
+  #- name: Install Chrome Audio Server and sound setup files
+  #  include_role: eve-audio
 
-- name: Install misc tweaks
-  import_playbook: playbooks/tweaks.yml
+  #- name: Install misc tweaks
+  #  include_role: eve-tweaks

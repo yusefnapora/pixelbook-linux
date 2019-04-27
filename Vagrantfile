@@ -12,15 +12,9 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "Pysis/fedora29-workstation"
-  config.vm.box_version = "1.0.0"
+  config.vm.box = "chenhan/ubuntu-desktop-19.04"  
 
-  config.vm.provider "virtualbox" do |vb|
-    vb.customize ["modifyvm", :id, "--usb", "on"]
-    vb.customize ["modifyvm", :id, "--usbehci", "off"]
-  end
-
-  config.vm.provision "shell", inline: "dnf install -y python"
+  config.vm.provision "shell", inline: "apt install -y python git"
 
   config.vm.provision "ansible" do |ansible|
     ansible.verbose = "v"

@@ -1,0 +1,9 @@
+---
+# common to all playbooks
+main_workdir: /opt/eve-linux-setup
+login_user: vagrant # override at command line with local username
+
+recovery_mount_point: "{{ main_workdir }}/recovery_mnt"
+eve_recovery_image: "chromeos_11647.154.0_eve_recovery_stable-channel_mp.bin"
+eve_recovery_image_sha256: "ccde720355b8d0f1bbd890b379614bf7cb378feb856f45fe1d11bec50f9a80ad"
+cras_etc_dir: /usr/local/etc

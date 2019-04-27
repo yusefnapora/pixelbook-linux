@@ -1,0 +1,18 @@
+---
+- name: Check whether we've installed the kernel already
+  register: kernel_pre_installed
+  shell: "ls /boot | grep {{ eve_kernel_compiled_name }} > /dev/null"
+  ignore_errors: true
+
+- when: kernel_pre_installed is succeeded and not force_kernel_install
+  debug:
+    msg: "Kernel is already installed, skipping. To force install, set force_kernel_install variable to true."
+
+- when: kernel_pre_installed is succeeded and force_kernel_install
+  debug:
+    msg: "Kernel is already installed, but force_kernel_install is set. Attempting install"
+
+- name: Install chromium fork of linux kernel
+  when: kernel_pre_installed is failed or force_kernel_install
+  include_tasks: "kernel-tasks-{{ kernel_install_type }}.yml"
+
