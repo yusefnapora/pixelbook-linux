@@ -1,0 +1,38 @@
+---
+# common to all playbooks
+- main_workdir: /opt/eve-linux-setup
+- login_user: vagrant # override at command line with local username
+
+# tweaks.yml
+- eve_keyboard_search_keycode: leftmeta
+- eve_keyboard_assistant_keycode: rightmeta
+
+# extract-recovery-files.yml
+- recovery_mount_point: "{{ main_workdir }}/recovery_mnt"
+- eve_recovery_image: "chromeos_11647.154.0_eve_recovery_stable-channel_mp.bin"
+- eve_recovery_image_sha256: "ccde720355b8d0f1bbd890b379614bf7cb378feb856f45fe1d11bec50f9a80ad"
+- cras_etc_dir: /usr/local/etc
+
+
+# install-cras.yml
+- adhd_version: "52ee294de65ec6703f983dae81b92ac0a6bfda17"
+- adhd_workdir: "{{ main_workdir }}/adhd"
+- cras_workdir: "{{ adhd_workdir }}/cras"
+- cras_configure_opts: "--disable-dbus --disable-webrtc-apm --with-socketdir=/var/run/cras"
+- cras_configure_env: "CFLAGS='-I/usr/include/iniparser'"
+- cras_lib_version: "0.0.0"
+- system_lib_dir: "/usr/lib/x86_64-linux-gnu"
+- alsa_lib_dir: "{{ system_lib_dir }}/alsa-lib"
+
+
+# install-kernel.yml
+- kernel_install_type: src
+- force_kernel_install: false
+
+# vars for deb package install
+- kernel_deb_zip_url: https://github.com/yusefnapora/pixelbook-linux-hacks/releases/download/v0.1/ubuntu-kernel-debs-4.4.178chromium-g4245c5e1.zip
+
+# vars for source build
+- eve_kernel_branch: release-R75-12105.B-chromeos-4.4
+- eve_kernel_compiled_name: vmlinuz-4.4.178chromium-g09559f81
+- eve_kernel_config_file: eve-R75-12105.B-4.4.178.config
