@@ -1,0 +1,55 @@
+From 863a828c7017c890194cc567261dda4b14facac6 Mon Sep 17 00:00:00 2001
+From: Yusef Napora <yusef@napora.org>
+Date: Sun, 28 Apr 2019 17:49:48 -0400
+Subject: [PATCH 2/2] fix scrolling on linux
+
+---
+ src/cmt.c     | 11 +++++++++--
+ src/gesture.c |  2 +-
+ 2 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/src/cmt.c b/src/cmt.c
+index b692a77..c45fce3 100644
+--- a/src/cmt.c
++++ b/src/cmt.c
+@@ -412,8 +412,8 @@ InitializeXDevice(DeviceIntPtr dev)
+         1,
+         2,
+         3,
+-        8,  /* Back */
+-        9   /* Forward */
++        4,  /* Back */
++        5   /* Forward */
+     };
+     int i;
+ 
+@@ -440,6 +440,13 @@ InitializeXDevice(DeviceIntPtr dev)
+             dev, i, axes_labels[i], -1, -1, 1, 0, 1, mode);
+         xf86InitValuatorDefaults(dev, i);
+     }
++    
++    /* Inititialize the Scroll Valuators */
++    SetScrollValuator(dev, CMT_AXIS_SCROLL_X, SCROLL_TYPE_HORIZONTAL,
++		      30, 0);
++    SetScrollValuator(dev, CMT_AXIS_SCROLL_Y, SCROLL_TYPE_VERTICAL,
++                      30, 0);
++
+ 
+     /* initialize raw touch valuators */
+     InitTouchClassDeviceStruct(dev, Event_Get_Slot_Count(&cmt->evdev),
+diff --git a/src/gesture.c b/src/gesture.c
+index 81c2b38..29b197b 100755
+--- a/src/gesture.c
++++ b/src/gesture.c
+@@ -421,7 +421,7 @@ static void Gesture_Gesture_Ready(void* client_data,
+                              scroll->ordinal_dx,
+                              scroll->ordinal_dy,
+                              TRUE);
+-            xf86PostMotionEventM(dev, TRUE, mask);
++            xf86PostMotionEventM(dev, FALSE, mask);
+             break;
+         }
+         case kGestureTypeButtonsChange: {
+-- 
+2.20.1
+

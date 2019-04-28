@@ -1,0 +1,269 @@
+From c7f15ae398617ff37725682650a50a0174b2c8a0 Mon Sep 17 00:00:00 2001
+From: Yusef Napora <yusef@napora.org>
+Date: Sun, 28 Apr 2019 09:36:48 -0400
+Subject: [PATCH] rename to libevdev-cros
+
+---
+ Makefile                                      |  9 +++---
+ .../libevdev-cros.h}                          |  4 +--
+ .../libevdev-cros_event.h}                    |  4 +--
+ .../libevdev-cros_log.h}                      |  0
+ .../libevdev-cros_mt.h}                       |  2 +-
+ .../libevdev-cros_util.h}                     |  0
+ include/module.mk                             | 10 +++----
+ libevdev-cros.pc                              |  2 +-
+ src/{libevdev.c => libevdev-cros.c}           |  8 ++---
+ ...libevdev_event.c => libevdev-cros_event.c} |  6 ++--
+ src/{libevdev_mt.c => libevdev-cros_mt.c}     |  4 +--
+ src/module.mk                                 | 30 +++++++++----------
+ 12 files changed, 40 insertions(+), 39 deletions(-)
+ rename include/{libevdev/libevdev.h => libevdev-cros/libevdev-cros.h} (96%)
+ rename include/{libevdev/libevdev_event.h => libevdev-cros/libevdev-cros_event.h} (95%)
+ rename include/{libevdev/libevdev_log.h => libevdev-cros/libevdev-cros_log.h} (100%)
+ rename include/{libevdev/libevdev_mt.h => libevdev-cros/libevdev-cros_mt.h} (97%)
+ rename include/{libevdev/libevdev_util.h => libevdev-cros/libevdev-cros_util.h} (100%)
+ rename src/{libevdev.c => libevdev-cros.c} (98%)
+ rename src/{libevdev_event.c => libevdev-cros_event.c} (99%)
+ rename src/{libevdev_mt.c => libevdev-cros_mt.c} (98%)
+
+diff --git a/Makefile b/Makefile
+index e04269f..78f2077 100644
+--- a/Makefile
++++ b/Makefile
+@@ -5,11 +5,12 @@
+ include common.mk
+ 
+ LIBDIR ?= /usr/lib
++CURDIR = .
+ 
+-all: CC_LIBRARY(src/libevdev.so.0) CC_LIBRARY(src/libevdev_hollow.so.0)
+-clean: CLEAN(src/libevdev.so.0) CLEAN(src/libevdev_hollow.so.0)
++all: CC_LIBRARY(src/libevdev-cros.so.0) CC_LIBRARY(src/libevdev-cros_hollow.so.0)
++clean: CLEAN(src/libevdev-cros.so.0) CLEAN(src/libevdev-cros_hollow.so.0)
+ install: install-lib install-header
+ 
+-in-place: CC_LIBRARY(src/libevdev_hollow.so.0)
++in-place: CC_LIBRARY(src/libevdev-cros_hollow.so.0)
+ clean-in-place: clean
+-setup-in-place: setup-lib-in-place setup-header-in-place
+\ No newline at end of file
++setup-in-place: setup-lib-in-place setup-header-in-place
+diff --git a/include/libevdev/libevdev.h b/include/libevdev-cros/libevdev-cros.h
+similarity index 96%
+rename from include/libevdev/libevdev.h
+rename to include/libevdev-cros/libevdev-cros.h
+index d68ea52..1b8d273 100644
+--- a/include/libevdev/libevdev.h
++++ b/include/libevdev-cros/libevdev-cros.h
+@@ -7,8 +7,8 @@
+ #define _LIBEVDEV_H_
+ 
+ #include <linux/input.h>
+-#include <libevdev/libevdev_event.h>
+-#include <libevdev/libevdev_mt.h>
++#include <libevdev-cros/libevdev-cros_event.h>
++#include <libevdev-cros/libevdev-cros_mt.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
+diff --git a/include/libevdev/libevdev_event.h b/include/libevdev-cros/libevdev-cros_event.h
+similarity index 95%
+rename from include/libevdev/libevdev_event.h
+rename to include/libevdev-cros/libevdev-cros_event.h
+index 4a6f369..278bbe1 100755
+--- a/include/libevdev/libevdev_event.h
++++ b/include/libevdev-cros/libevdev-cros_event.h
+@@ -8,8 +8,8 @@
+ #ifndef _LIBEVDEV_EVENT_H_
+ #define _LIBEVDEV_EVENT_H_
+ 
+-#include <libevdev/libevdev_log.h>
+-#include <libevdev/libevdev_mt.h>
++#include <libevdev-cros/libevdev-cros_log.h>
++#include <libevdev-cros/libevdev-cros_mt.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
+diff --git a/include/libevdev/libevdev_log.h b/include/libevdev-cros/libevdev-cros_log.h
+similarity index 100%
+rename from include/libevdev/libevdev_log.h
+rename to include/libevdev-cros/libevdev-cros_log.h
+diff --git a/include/libevdev/libevdev_mt.h b/include/libevdev-cros/libevdev-cros_mt.h
+similarity index 97%
+rename from include/libevdev/libevdev_mt.h
+rename to include/libevdev-cros/libevdev-cros_mt.h
+index 3ebed3e..2f77a63 100644
+--- a/include/libevdev/libevdev_mt.h
++++ b/include/libevdev-cros/libevdev-cros_mt.h
+@@ -9,7 +9,7 @@
+ #define _LIBEVDEV_MT_H_
+ 
+ #include <stdint.h>
+-#include <libevdev/libevdev_log.h>
++#include <libevdev-cros/libevdev-cros_log.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
+diff --git a/include/libevdev/libevdev_util.h b/include/libevdev-cros/libevdev-cros_util.h
+similarity index 100%
+rename from include/libevdev/libevdev_util.h
+rename to include/libevdev-cros/libevdev-cros_util.h
+diff --git a/include/module.mk b/include/module.mk
+index 4c7aa8c..5d331c3 100755
+--- a/include/module.mk
++++ b/include/module.mk
+@@ -4,14 +4,14 @@
+ 
+ include common.mk
+ 
+-install-header: CC_LIBRARY(src/libevdev.so.0)
++install-header: CC_LIBRARY(src/libevdev-cros.so.0)
+ 	set -e; \
+-	for h in libevdev.h libevdev_event.h libevdev_mt.h libevdev_log.h; do \
+-		install -D -m 0644 $(SRC)/include/libevdev/$$h \
+-			$(DESTDIR)/usr/include/libevdev/$$h; \
++	for h in libevdev-cros.h libevdev-cros_event.h libevdev-cros_mt.h libevdev-cros_log.h; do \
++		install -D -m 0644 $(SRC)/include/libevdev-cros/$$h \
++			$(DESTDIR)/usr/include/libevdev-cros/$$h; \
+ 	done
+ 
+ 
+ setup-header-in-place:
+ 	mkdir -p $(SRC)/in-place || true
+-	ln -sfn $(SRC)/include/libevdev $(SRC)/in-place/libevdev
++	ln -sfn $(SRC)/include/libevdev-cros $(SRC)/in-place/libevdev-cros
+diff --git a/libevdev-cros.pc b/libevdev-cros.pc
+index 768e36a..d87cbf9 100644
+--- a/libevdev-cros.pc
++++ b/libevdev-cros.pc
+@@ -7,4 +7,4 @@ Name: libevdev-cros
+ Description: The libevdev library (ChromeOS version)
+ Version: 0
+ Cflags: -I${includedir}
+-Libs: -L${libdir} -levdev
++Libs: -L${libdir} -levdev-cros
+diff --git a/src/libevdev.c b/src/libevdev-cros.c
+similarity index 98%
+rename from src/libevdev.c
+rename to src/libevdev-cros.c
+index 1b4d52e..fb174fb 100644
+--- a/src/libevdev.c
++++ b/src/libevdev-cros.c
+@@ -3,7 +3,7 @@
+  * Use of this source code is governed by a BSD-style license that can be
+  * found in the LICENSE file.
+  */
+-#include <libevdev/libevdev.h>
++#include <libevdev-cros/libevdev-cros.h>
+ 
+ #include <errno.h>
+ #include <fcntl.h>
+@@ -12,9 +12,9 @@
+ #include <time.h>
+ #include <unistd.h>
+ 
+-#include <libevdev/libevdev_event.h>
+-#include <libevdev/libevdev_log.h>
+-#include <libevdev/libevdev_util.h>
++#include <libevdev-cros/libevdev-cros_event.h>
++#include <libevdev-cros/libevdev-cros_log.h>
++#include <libevdev-cros/libevdev-cros_util.h>
+ 
+ /* Number of events to attempt to read from kernel on each SIGIO */
+ #define NUM_EVENTS          16
+diff --git a/src/libevdev_event.c b/src/libevdev-cros_event.c
+similarity index 99%
+rename from src/libevdev_event.c
+rename to src/libevdev-cros_event.c
+index e1835b4..82bd8ff 100755
+--- a/src/libevdev_event.c
++++ b/src/libevdev-cros_event.c
+@@ -4,15 +4,15 @@
+  * found in the LICENSE file.
+  */
+ 
+-#include <libevdev/libevdev_event.h>
++#include <libevdev-cros/libevdev-cros_event.h>
+ 
+ #include <errno.h>
+ #include <linux/input.h>
+ #include <stdbool.h>
+ #include <time.h>
+ 
+-#include <libevdev/libevdev.h>
+-#include <libevdev/libevdev_util.h>
++#include <libevdev-cros/libevdev-cros.h>
++#include <libevdev-cros/libevdev-cros_util.h>
+ 
+ #ifndef BTN_TOOL_QUINTTAP
+ #define BTN_TOOL_QUINTTAP  0x148  /* Five fingers on trackpad */
+diff --git a/src/libevdev_mt.c b/src/libevdev-cros_mt.c
+similarity index 98%
+rename from src/libevdev_mt.c
+rename to src/libevdev-cros_mt.c
+index fef3119..e563e38 100644
+--- a/src/libevdev_mt.c
++++ b/src/libevdev-cros_mt.c
+@@ -4,12 +4,12 @@
+  * found in the LICENSE file.
+  */
+ 
+-#include <libevdev/libevdev_mt.h>
++#include <libevdev-cros/libevdev-cros_mt.h>
+ 
+ #include <errno.h>
+ #include <linux/input.h>
+ 
+-#include <libevdev/libevdev.h>
++#include <libevdev-cros/libevdev-cros.h>
+ 
+ const char *mt_axis_names[] = {
+     "Touch Major",
+diff --git a/src/module.mk b/src/module.mk
+index 23135f0..0b43062 100755
+--- a/src/module.mk
++++ b/src/module.mk
+@@ -6,25 +6,25 @@ include common.mk
+ CFLAGS += -std=gnu99 -fvisibility=default
+ CPPFLAGS += -I$(SRC)/include
+ 
+-CC_LIBRARY(src/libevdev_hollow.so.0): CFLAGS += -DEVDEV_HOLLOW
+-CC_LIBRARY(src/libevdev_hollow.so.0): src/libevdev.o \
+-	src/libevdev_mt.o \
+-	src/libevdev_event.o
++CC_LIBRARY(src/libevdev-cros_hollow.so.0): CFLAGS += -DEVDEV_HOLLOW
++CC_LIBRARY(src/libevdev-cros_hollow.so.0): src/libevdev-cros.o \
++	src/libevdev-cros_mt.o \
++	src/libevdev-cros_event.o
+ 
+-CC_LIBRARY(src/libevdev.so.0): src/libevdev.o \
+-	src/libevdev_mt.o \
+-	src/libevdev_event.o
++CC_LIBRARY(src/libevdev-cros.so.0): src/libevdev-cros.o \
++	src/libevdev-cros_mt.o \
++	src/libevdev-cros_event.o
+ 
+-install-lib: CC_LIBRARY(src/libevdev.so.0) CC_LIBRARY(src/libevdev_hollow.so.0)
+-	install -D -m 0755 src/libevdev.so.0 $(DESTDIR)$(LIBDIR)/libevdev.so.0
+-	ln -f -s libevdev.so.0 $(DESTDIR)$(LIBDIR)/libevdev.so
+-	install -D -m 0755 src/libevdev_hollow.so.0 \
+-		$(DESTDIR)$(LIBDIR)/libevdev_hollow.so.0
+-	ln -f -s libevdev_hollow.so.0 $(DESTDIR)$(LIBDIR)/libevdev_hollow.so
++install-lib: CC_LIBRARY(src/libevdev-cros.so.0) CC_LIBRARY(src/libevdev-cros_hollow.so.0)
++	install -D -m 0755 src/libevdev-cros.so.0 $(DESTDIR)$(LIBDIR)/libevdev-cros.so.0
++	ln -f -s libevdev-cros.so.0 $(DESTDIR)$(LIBDIR)/libevdev-cros.so
++	install -D -m 0755 src/libevdev-cros_hollow.so.0 \
++		$(DESTDIR)$(LIBDIR)/libevdev-cros_hollow.so.0
++	ln -f -s libevdev-cros_hollow.so.0 $(DESTDIR)$(LIBDIR)/libevdev-cros_hollow.so
+ 	install -D -m 0644 $(SRC)/libevdev-cros.pc \
+ 			$(DESTDIR)$(LIBDIR)/pkgconfig/libevdev-cros.pc
+ 
+ setup-lib-in-place:
+ 	mkdir -p $(SRC)/in-place || true
+-	ln -sf $(SRC)/src/libevdev_hollow.so.0 $(SRC)/in-place/libevdev_hollow.so
+-	ln -sf $(SRC)/src/libevdev_hollow.so.0 $(SRC)/in-place/libevdev_hollow.so.0
++	ln -sf $(SRC)/src/libevdev-cros_hollow.so.0 $(SRC)/in-place/libevdev-cros_hollow.so
++	ln -sf $(SRC)/src/libevdev-cros_hollow.so.0 $(SRC)/in-place/libevdev-cros_hollow.so.0
+-- 
+2.20.1
+

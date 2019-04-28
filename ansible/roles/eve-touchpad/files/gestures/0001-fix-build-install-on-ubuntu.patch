@@ -1,0 +1,55 @@
+From 1d1d78b39adddcd7a353f936e764a09ce6a0e5ae Mon Sep 17 00:00:00 2001
+From: Yusef Napora <yusef@napora.org>
+Date: Sun, 28 Apr 2019 16:40:57 -0400
+Subject: [PATCH] fix build & install on ubuntu
+
+---
+ Makefile                     | 3 +--
+ lid_touchpad_helper/Makefile | 3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 1cf33f6..6e2542c 100644
+--- a/Makefile
++++ b/Makefile
+@@ -102,7 +102,7 @@ ALL_OBJECT_FILES=\
+ 
+ DEPDIR = .deps
+ 
+-DESTDIR = .
++DESTDIR = /
+ 
+ CXXFLAGS+=\
+ 	-g \
+@@ -112,7 +112,6 @@ CXXFLAGS+=\
+ 	-fPIC \
+ 	-Wall \
+ 	-Wempty-body \
+-	-Werror \
+ 	-Wignored-qualifiers \
+ 	-Wmissing-field-initializers \
+ 	-Wmissing-format-attribute \
+diff --git a/lid_touchpad_helper/Makefile b/lid_touchpad_helper/Makefile
+index 86422ff..462ba22 100644
+--- a/lid_touchpad_helper/Makefile
++++ b/lid_touchpad_helper/Makefile
+@@ -7,7 +7,7 @@ OBJDIR = obj
+ OBJECTS=\
+ 	$(OBJDIR)/lid_touchpad_helper_main.o
+ 
+-DESTDIR = .
++DESTDIR = /
+ 
+ CXXFLAGS+=\
+ 	-g \
+@@ -18,7 +18,6 @@ CXXFLAGS+=\
+ 	-Wall \
+ 	-Wclobbered \
+ 	-Wempty-body \
+-	-Werror \
+ 	-Wignored-qualifiers \
+ 	-Wmissing-field-initializers \
+ 	-Wsign-compare \
+-- 
+2.20.1
+
