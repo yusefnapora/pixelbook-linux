@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "chenhan/ubuntu-desktop-19.04"  
+  config.vm.box = "mrlesmithjr/dingo64-desktop"  
 
   config.vm.provision "shell", inline: "apt install -y python git"
 

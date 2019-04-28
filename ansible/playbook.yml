@@ -18,5 +18,6 @@
     include_role:
       name: eve-audio
 
-  #- name: Install misc tweaks
-  #  include_role: eve-tweaks
+  - name: Install misc tweaks
+    include_role: 
+      name: eve-tweaks
