@@ -1,4 +1,15 @@
 ---
+
+# Todo: move apt install to common role
+- name: Install build dependencies
+  become: true
+  apt:
+    name:
+      - libgtest-dev
+      - libjsoncpp-dev
+      - libxi-dev
+
+# libevdev (chromium fork)
 - name: Clone chromium fork of libevdev
   git:
     repo: "{{ libevdev_repo_url }}"
@@ -7,7 +18,7 @@
 
 - name: Copy libevdev patch file
   copy:
-    src: "{{ libevdev_patch_file }}"
+    src: "libevdev/{{ libevdev_patch_file }}"
     dest: "{{ libevdev_workdir }}"
 
 - name: Apply libevdev patch file
@@ -17,7 +28,52 @@
     creates: "{{ libevdev_workdir }}/src/libevdev-cros.c"
 
 - name: Build libevdev-cros
-  command: "make"
+  shell: "make"  # this fails with the command module, for some reason
   args:
     chdir: "{{ libevdev_workdir }}"
     creates: "{{ libevdev_workdir }}/src/libevdev-cros.so.0"
+
+- name: Install libevdev-cros
+  become: true
+  shell: "make install"
+  args:
+    chdir: "{{ libevdev_workdir }}"
+    creates: /usr/lib/libevdev-cros.so.0
+
+
+# chromeos gestures lib
+
+- name: Clone libgestures repo
+  git:
+    repo: "{{ gestures_repo_url }}"
+    dest: "{{ gestures_workdir }}"
+    version: "{{ gestures_version }}"
+
+- name: Copy gestures patch file
+  copy:
+    src: "gestures/{{ gestures_patch_file }}"
+    dest: "{{ gestures_workdir }}"
+
+- name: Check if we need to apply patch
+  register: patch_pre_check
+  command: "grep Werror {{ gestures_workdir }}/Makefile"
+  ignore_errors: true
+
+- name: Apply patch
+  when: patch_pre_check.rc == 0
+  command: "git am {{ gestures_patch_file }}"
+  args:
+    chdir: "{{ gestures_workdir }}"
+
+- name: Build libgestures
+  command: "make"
+  args:
+    chdir: "{{ gestures_workdir }}"
+    creates: "{{ gestures_workdir }}/obj/libgestures.so.0"
+
+- name: Install libgestures
+  become: true
+  command: "make install"
+  args:
+    chdir: "{{ gestures_workdir }}"
+    creates: "/usr/lib/libgestures.so.0"

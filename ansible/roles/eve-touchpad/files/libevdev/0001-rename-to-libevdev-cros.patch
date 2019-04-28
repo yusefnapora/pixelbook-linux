@@ -1,22 +1,22 @@
-From 0263c9b8b12ef353e245f83758f7f66dbb5a0f22 Mon Sep 17 00:00:00 2001
+From c7f15ae398617ff37725682650a50a0174b2c8a0 Mon Sep 17 00:00:00 2001
 From: Yusef Napora <yusef@napora.org>
 Date: Sun, 28 Apr 2019 09:36:48 -0400
 Subject: [PATCH] rename to libevdev-cros
 
 ---
- Makefile                                      |  9 ++---
+ Makefile                                      |  9 +++---
  .../libevdev-cros.h}                          |  4 +--
  .../libevdev-cros_event.h}                    |  4 +--
  .../libevdev-cros_log.h}                      |  0
  .../libevdev-cros_mt.h}                       |  2 +-
  .../libevdev-cros_util.h}                     |  0
- include/module.mk                             | 10 +++---
+ include/module.mk                             | 10 +++----
  libevdev-cros.pc                              |  2 +-
  src/{libevdev.c => libevdev-cros.c}           |  8 ++---
  ...libevdev_event.c => libevdev-cros_event.c} |  6 ++--
  src/{libevdev_mt.c => libevdev-cros_mt.c}     |  4 +--
- src/module.mk                                 | 34 +++++++++----------
- 12 files changed, 42 insertions(+), 41 deletions(-)
+ src/module.mk                                 | 30 +++++++++----------
+ 12 files changed, 40 insertions(+), 39 deletions(-)
  rename include/{libevdev/libevdev.h => libevdev-cros/libevdev-cros.h} (96%)
  rename include/{libevdev/libevdev_event.h => libevdev-cros/libevdev-cros_event.h} (95%)
  rename include/{libevdev/libevdev_log.h => libevdev-cros/libevdev-cros_log.h} (100%)
@@ -220,7 +220,7 @@ index fef3119..e563e38 100644
  const char *mt_axis_names[] = {
      "Touch Major",
 diff --git a/src/module.mk b/src/module.mk
-index 23135f0..341357d 100755
+index 23135f0..0b43062 100755
 --- a/src/module.mk
 +++ b/src/module.mk
 @@ -6,25 +6,25 @@ include common.mk
@@ -249,16 +249,14 @@ index 23135f0..341357d 100755
 -	install -D -m 0755 src/libevdev_hollow.so.0 \
 -		$(DESTDIR)$(LIBDIR)/libevdev_hollow.so.0
 -	ln -f -s libevdev_hollow.so.0 $(DESTDIR)$(LIBDIR)/libevdev_hollow.so
--	install -D -m 0644 $(SRC)/libevdev-cros.pc \
--			$(DESTDIR)$(LIBDIR)/pkgconfig/libevdev-cros.pc
 +install-lib: CC_LIBRARY(src/libevdev-cros.so.0) CC_LIBRARY(src/libevdev-cros_hollow.so.0)
 +	install -D -m 0755 src/libevdev-cros.so.0 $(DESTDIR)$(LIBDIR)/libevdev-cros.so.0
 +	ln -f -s libevdev-cros.so.0 $(DESTDIR)$(LIBDIR)/libevdev-cros.so
 +	install -D -m 0755 src/libevdev-cros_hollow.so.0 \
 +		$(DESTDIR)$(LIBDIR)/libevdev-cros_hollow.so.0
 +	ln -f -s libevdev-cros_hollow.so.0 $(DESTDIR)$(LIBDIR)/libevdev-cros_hollow.so
-+	install -D -m 0644 $(SRC)/libevdev-cros-cros.pc \
-+			$(DESTDIR)$(LIBDIR)/pkgconfig/libevdev-cros-cros.pc
+ 	install -D -m 0644 $(SRC)/libevdev-cros.pc \
+ 			$(DESTDIR)$(LIBDIR)/pkgconfig/libevdev-cros.pc
  
  setup-lib-in-place:
  	mkdir -p $(SRC)/in-place || true
