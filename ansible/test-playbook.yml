@@ -1,7 +1,0 @@
----
-- hosts: all
-
-  tasks:
-    - name: Build cmt
-      include_role:
-        name: eve-touchpad
