@@ -242,6 +242,11 @@ and creating a `/etc/libinput/local-overrides.quirks` file.
 
 The automatic install will add that file with values that feel right on my machine - feel free to edit it if you prefer a different feel.
 
+Note that the touchpad will not feel as nice as it does on ChromeOS; Google's done a bunch of work on this and have developed
+their own multitouch input driver called [cmt](https://chromium.googlesource.com/chromiumos/platform/xf86-input-cmt). It's
+possible that the cmt driver could be ported and used on vanilla linux. So far I've found [hugegreenbug's port](https://github.com/hugegreenbug/xf86-input-cmt), but it hasn't been updated in several years. I may play with this at
+some point, as the touchpad feel is probably the biggest remaining tradeoff vs ChromeOS (for me personally).
+
 ### Remapping non-standard keyboard keys
 
 The Pixelbook keyboard has three non-standard keys, the search key that takes the place of Caps Lock, the "hamburger" key in the upper right, and the Google Assistant key betweeen left control and left alt.
@@ -252,8 +257,9 @@ If you'd prefer a different key, or to map the search key to something else,
 see [Running the install script](#running-the-install-script) for details on how to customize.
 
 
-
 ## Installation
+
+
 
 ansible: https://ansible.io # FIXME: is this right?
 pixelbook_product_page: http://fixme.before.merge
