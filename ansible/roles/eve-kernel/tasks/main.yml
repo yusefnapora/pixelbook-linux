@@ -16,3 +16,16 @@
   when: kernel_pre_installed is failed or force_kernel_install
   include_tasks: "kernel-tasks-{{ kernel_install_type }}.yml"
 
+- name: Check if we've set the default kernel already
+  become: true
+  command: grep -E '^GRUB_DEFAULT=.*chromium.*$' /etc/default/grub
+  register: grub_default_check
+  ignore_errors: true
+
+- debug:
+    msg: "Chromium kernel is already default, skipping grub setup"
+  when: grub_default_check.rc == 0
+
+- name: Set default kernel
+  when: grub_default_check.rc != 0
+  include_tasks: grub.yml

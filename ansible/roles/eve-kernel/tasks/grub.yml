@@ -1,0 +1,36 @@
+---
+- name: Check for existing grub config
+  stat:
+    path: /boot/grub/grub.cfg
+  register: grub_cfg_stat
+
+- name: Backup existing grub config
+  become: true
+  when: grub_cfg_stat.stat.exists
+  copy:
+    remote_src: true
+    src: /boot/grub/grub.cfg
+    dest: "/boot/grub/grub.cfg.bak.{{ ansible_date_time.epoch }}"
+
+- name: Generate new grub config
+  become: true
+  command: "grub-mkconfig -o /boot/grub/grub.cfg"
+
+- name: Find advanced menu entry id
+  shell: grep -E '^.*submenu.*advanced-.*$' /boot/grub/grub.cfg | sed -E "s/.*(advanced-.*)'.*/\1/g"
+  register: menu_id_check
+
+- name: Generate full menu entry string
+  set_fact:
+    grub_default_entry: "gnulinux-{{ menu_id_check.stdout }}>gnulinux-{{ eve_kernel_name }}-{{ menu_id_check.stdout }}"
+
+- name: Install /etc/default/grub with new GRUB_DEFAULT entry
+  become: true
+  template:
+    src: grub.j2
+    dest: /etc/default/grub
+    backup: true
+
+- name: Regenerate grub config with new default
+  become: true
+  command: update-grub
