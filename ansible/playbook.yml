@@ -29,6 +29,10 @@
     include_role:
       name: eve-audio
 
+  - name: Install ChromeOS X11 touchpad driver
+    include_role:
+      name: eve-touchpad
+
   - name: Install misc tweaks
     include_role: 
       name: eve-tweaks
