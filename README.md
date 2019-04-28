@@ -234,18 +234,25 @@ There's also a `eve-keyboard-brightness.sh` script installd in `/usr/local/bin` 
 - Adjust brightness by relative amount: `eve-keyboard-brightness.sh +10`
   - handy for assigning to a keyboard shortcut
   
-### Touchpad sensitivity
+### Touchpad
 
 By default, the pixelbook touchpad feels off in non-ChromeOS linux, requiring too much pressure to move the cursor. This can be fixed by 
 [fiddling with libinput debug tools](https://wayland.freedesktop.org/libinput/doc/latest/touchpad-pressure-debugging.html#touchpad-pressure-hwdb)
 and creating a `/etc/libinput/local-overrides.quirks` file. 
 
-The automatic install will add that file with values that feel right on my machine - feel free to edit it if you prefer a different feel.
+An earlier version of this repo included a quirks file to set the sensitivity, but I realized I could do one better by
+once again building some ChromeOS platform code for vanilla linux.
 
-Note that the touchpad will not feel as nice as it does on ChromeOS; Google's done a bunch of work on this and have developed
-their own multitouch input driver called [cmt](https://chromium.googlesource.com/chromiumos/platform/xf86-input-cmt). It's
-possible that the cmt driver could be ported and used on vanilla linux. So far I've found [hugegreenbug's port](https://github.com/hugegreenbug/xf86-input-cmt), but it hasn't been updated in several years. I may play with this at
-some point, as the touchpad feel is probably the biggest remaining tradeoff vs ChromeOS (for me personally).
+ChromeOS has its own X11 input driver called `cmt` (for Chromium Multi Touch), which is why the touchpad feels so
+much nicer on ChromeOS than most flavors of linux.
+
+I found a [fork of the `xf86-input-cmt` driver by @hugegreenbug](https://github.com/hugegreenbug/xf86-input-cmt/),
+which convinced me to try compiling it. Because @hugegreenbug's repo hasn't been updated in a few years, I decided
+to make my own patches based on his changes and apply them during the automatic configuration process.
+
+Running the automatic config script will build the input driver and its dependencies and install everything into
+the right place. On reboot, you should have nice touchpad sensitivity, and you'll be able to scroll much more
+smoothly.
 
 ### Remapping non-standard keyboard keys
 
@@ -259,7 +266,11 @@ see [Running the install script](#running-the-install-script) for details on how
 
 ## Installation
 
+Instructions coming soon!
+
+If you've already managed to disable write protect and install vanilla ubuntu 19.04, you should be able to
+clone this repo and run `./run-ansible.sh`.
 
 
-ansible: https://ansible.io # FIXME: is this right?
-pixelbook_product_page: http://fixme.before.merge
+ansible: https://ansible.com
+pixelbook_product_page: https://www.google.com/chromebook/device/google-pixelbook/
