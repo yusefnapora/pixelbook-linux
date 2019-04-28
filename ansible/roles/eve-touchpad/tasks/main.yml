@@ -8,6 +8,8 @@
       - libgtest-dev
       - libjsoncpp-dev
       - libxi-dev
+      - xutils-dev
+      - xserver-xorg-dev
 
 # libevdev (chromium fork)
 - name: Clone chromium fork of libevdev
@@ -77,3 +79,71 @@
   args:
     chdir: "{{ gestures_workdir }}"
     creates: "/usr/lib/libgestures.so.0"
+
+# xf86-input-cmt multi-touch driver
+
+- name: Clone cmt repo
+  git:
+    repo: "{{ cmt_repo_url }}"
+    dest: "{{ cmt_workdir }}"
+    version: "{{ cmt_version }}"
+
+- name: Copy patch files
+  copy:
+    src: "xf86-input-cmt/{{ item }}"
+    dest: "{{ cmt_workdir }}"
+  with_items: "{{ cmt_patch_files }}"
+
+- name: Check if we need to patch
+  register: cmt_patch_precheck
+  command: "grep evdev-cros {{ cmt_workdir }}/src/Makefile.am"
+  ignore_errors: true
+
+- name: Apply patches
+  when: cmt_patch_precheck.rc != 0
+  command: "git am {{ item }}"
+  args:
+    chdir: "{{ cmt_workdir }}"
+  with_items: "{{ cmt_patch_files }}"
+
+- name: Generate configure script
+  command: "bash autogen.sh"
+  args:
+    chdir: "{{ cmt_workdir }}"
+
+- name: Configure cmt input driver
+  command: "./configure --prefix=/usr"
+  args:
+    chdir: "{{ cmt_workdir }}"
+
+- name: Build cmt input driver
+  command: "make"
+  args:
+    chdir: "{{ cmt_workdir }}"
+
+- name: Install cmt input driver
+  become: true
+  command: "make install"
+  args:
+    chdir: "{{ cmt_workdir }}"
+
+- name: Ensure /etc/gesture exists
+  become: true
+  file:
+    path: /etc/gesture
+    state: directory
+
+- name: Copy conf files
+  become: true
+  copy:
+    src: "conf/{{ item }}"
+    dest: "/etc/gesture"
+  with_items: "{{ cmt_conf_files }}"
+
+- name: Link conf files to X11 config dir
+  become: true
+  file:
+    state: link
+    path: "/usr/share/X11/xorg.conf.d/{{ item }}"
+    src: "/etc/gesture/{{ item }}"
+  with_items: "{{ cmt_conf_files }}"

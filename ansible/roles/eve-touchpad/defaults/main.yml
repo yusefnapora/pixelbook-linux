@@ -17,3 +17,15 @@ gestures_repo_url: "https://chromium.googlesource.com/chromiumos/platform/gestur
 gestures_version: "113de4bb26e228fd74c74cadb3a9a1272e11df5b"
 gestures_patch_file: "0001-fix-build-install-on-ubuntu.patch"
 
+# xf86-input-cmt
+
+cmt_workdir: "{{ main_workdir }}/xf86-input-cmt"
+cmt_repo_url: "https://chromium.googlesource.com/chromiumos/platform/xf86-input-cmt"
+cmt_version: "3f2ffc921952e57a4343463b0679d90b80b51fc7"
+cmt_patch_files:
+  - "0001-use-renamed-libevdev-cros-lib.patch"
+  - "0002-fix-scrolling-on-linux.patch"
+cmt_conf_files:
+  - 20-mouse.conf
+  - 40-touchpad-cmt.conf
+  - 50-touchpad-cmt-eve.conf

@@ -1,0 +1,53 @@
+From 32b598dc082f8efe0fc37eea3cc14cf9c57e89e3 Mon Sep 17 00:00:00 2001
+From: Yusef Napora <yusef@napora.org>
+Date: Sun, 28 Apr 2019 17:48:58 -0400
+Subject: [PATCH 1/2] use renamed libevdev-cros lib
+
+---
+ src/Makefile.am | 2 +-
+ src/cmt.h       | 2 +-
+ src/gesture.h   | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 0810050..69fa6b3 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -34,7 +34,7 @@ AM_CPPFLAGS =-I$(top_srcdir)/include
+ 
+ @DRIVER_NAME@_drv_la_LTLIBRARIES = @DRIVER_NAME@_drv.la
+ @DRIVER_NAME@_drv_la_LDFLAGS = -module -avoid-version -shared -lgestures \
+-                               -levdev
++                               -levdev-cros
+ @DRIVER_NAME@_drv_ladir = @inputdir@
+ 
+ @DRIVER_NAME@_drv_la_SOURCES = @DRIVER_NAME@.c \
+diff --git a/src/cmt.h b/src/cmt.h
+index 9a3191f..d8486f8 100644
+--- a/src/cmt.h
++++ b/src/cmt.h
+@@ -12,7 +12,7 @@
+ #include <gesture.h>
+ #include <properties.h>
+ // todo(denniskempin): allow libevdev to be included before X headers
+-#include <libevdev/libevdev.h>
++#include <libevdev-cros/libevdev-cros.h>
+ 
+ #define DBG_VERB 7
+ #define DBG(info, format, ...) \
+diff --git a/src/gesture.h b/src/gesture.h
+index 4abeb33..72f00de 100644
+--- a/src/gesture.h
++++ b/src/gesture.h
+@@ -14,7 +14,7 @@
+ #include <xf86.h>
+ #include <xf86Xinput.h>
+ 
+-#include "libevdev/libevdev.h"
++#include "libevdev-cros/libevdev-cros.h"
+ #include "properties.h"
+ 
+ enum SLOT_STATUS {
+-- 
+2.20.1
+
