@@ -125,6 +125,7 @@
     dest: /usr/local/bin/.libs
     owner: cras
     group: cras
+    mode: 0775
 
 - name: add login user to cras group
   become: true
