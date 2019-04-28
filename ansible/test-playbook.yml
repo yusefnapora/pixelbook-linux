@@ -1,0 +1,7 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Build cwm
+      include_role:
+        name: eve-touchpad

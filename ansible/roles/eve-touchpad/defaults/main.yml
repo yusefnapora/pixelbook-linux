@@ -1,0 +1,13 @@
+---
+# common to all playbooks
+main_workdir: /opt/eve-linux-setup
+login_user: vagrant # override at command line with local username
+
+# vars for building cmt and dependencies
+
+libevdev_workdir: "{{ main_workdir }}/libevdev"
+libevdev_repo_url: "https://chromium.googlesource.com/chromiumos/platform/libevdev"
+libevdev_version: "23f8ea74685ea0a03be8649ca33d5664bc789393"
+libevdev_patch_file: "0001-rename-to-libevdev-cros.patch"
+
+

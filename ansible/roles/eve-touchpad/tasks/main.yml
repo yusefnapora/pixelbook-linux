@@ -1,0 +1,23 @@
+---
+- name: Clone chromium fork of libevdev
+  git:
+    repo: "{{ libevdev_repo_url }}"
+    dest: "{{ libevdev_workdir }}"
+    version: "{{ libevdev_version }}"
+
+- name: Copy libevdev patch file
+  copy:
+    src: "{{ libevdev_patch_file }}"
+    dest: "{{ libevdev_workdir }}"
+
+- name: Apply libevdev patch file
+  command: "git am {{ libevdev_patch_file }}"
+  args:
+    chdir: "{{ libevdev_workdir }}"
+    creates: "{{ libevdev_workdir }}/src/libevdev-cros.c"
+
+- name: Build libevdev-cros
+  command: "make"
+  args:
+    chdir: "{{ libevdev_workdir }}"
+    creates: "{{ libevdev_workdir }}/src/libevdev-cros.so.0"
