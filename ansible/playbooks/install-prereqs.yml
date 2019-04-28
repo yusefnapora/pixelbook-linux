@@ -1,8 +1,0 @@
----
-- hosts: all
-  vars_files:
-    - vars.yml
-  tasks:
-    - name: install OS packages
-      include_tasks: "tasks/packages-{{ ansible_distribution }}.yml"
-

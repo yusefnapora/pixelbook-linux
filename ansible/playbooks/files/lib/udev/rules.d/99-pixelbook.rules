@@ -1,7 +1,0 @@
-
-# Allow members of the "leds" group to write to all leds.
-# This lets non-root users change the keyboard backlight
-# brightness
-
-SUBSYSTEM=="leds", ACTION=="add", RUN+="/bin/chgrp -R leds /sys%p", RUN+="/bin/chmod -R g=u /sys%p"
-SUBSYSTEM=="leds", ACTION=="change", ENV{TRIGGER}!="none", RUN+="/bin/chgrp -R leds /sys%p", RUN+="/bin/chmod -R g=u /sys%p"
