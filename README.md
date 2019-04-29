@@ -1,6 +1,6 @@
 # Installing "real" linux on a Google Pixelbook
 
-This repo documents the process of replacing ChromeOs on a stock [Google Pixelbook][pixelbook_product_page]
+This repo documents the process of replacing ChromeOS on a stock [Google Pixelbook][pixelbook_product_page]
 with a "real" linux distribution. It also contains an automated configuration script that will fix things
 that are broken in a stock install, like sound, display and keyboard backlights, touchpad sensitivity, etc.
 
