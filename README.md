@@ -296,7 +296,7 @@ Coming soon: description of the quirks and helper scripts that were installed.
 
 For now, read through the [implementation details](implementation-details.md).
 
-ansible: https://ansible.com
-pixelbook_product_page: https://www.google.com/chromebook/device/google-pixelbook/
-suzyqable: https://www.sparkfun.com/products/14746
-ubuntu_dl: https://www.ubuntu.com/download/desktop/thank-you?country=US&version=19.04&architecture=amd64
+[ansible]: https://ansible.com
+[pixelbook_product_page]: https://www.google.com/chromebook/device/google-pixelbook/
+[suzyqable]: https://www.sparkfun.com/products/14746
+[ubuntu_dl]: https://www.ubuntu.com/download/desktop/thank-you?country=US&version=19.04&architecture=amd64
