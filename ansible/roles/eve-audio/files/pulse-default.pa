@@ -17,6 +17,11 @@
     # Accept clients -- very important
     load-module module-native-protocol-unix
 
+    # Load bluetooth modules
+    load-module module-bluetooth-policy
+    load-module module-bluetooth-discover
+
+
 .nofail
 .ifexists module-x11-publish.so
     # Publish to X11 so the clients know how to connect to Pulse. Will
