@@ -178,7 +178,7 @@ wp disable at_boot
 The first command will disable write protect, but it will come back on reboot unless you enter the
 second command as well. 
 
-It's up to you wheteher you want to permanently disable write protect using the `at_boot` flag; 
+It's up to you whether you want to permanently disable write protect using the `at_boot` flag; 
 we don't actually need to reboot the machine in order to flash the firmware. I set mine to disabled 
 at boot just in case things went wrong, to make it easier to recover.
 
@@ -238,7 +238,7 @@ unless you wiggle the cursor when the system is booting. If your mouse cursor is
 installer (or in the stock Ubuntu install afterward), try rebooting and continuously moving your
 finger around on the trackpad while the system starts.
 
-Now you can go ahead an install Ubuntu using the standard method. The installer defaults should all
+Now you can go ahead and install Ubuntu using the standard method. The installer defaults should all
 work fine, although I recommend encrypting your disk, or at least enabling LVM for volume management.
 
 Note that you'll have to erase the entire Pixelbook disk; since we can't boot back to ChromeOS anyway,
@@ -295,6 +295,16 @@ using the Gnome slider in the upper-right corner.
 Coming soon: description of the quirks and helper scripts that were installed.
 
 For now, read through the [implementation details](implementation-details.md).
+
+Note that the install process will dump some files into `/opt/eve-linux-setup` that
+can be safely removed afterward to reclaim ~1.5 GB of space. If you're not interested
+in fiddling around with the installer setup, it's a good idea to remove that directory:
+
+```bash
+sudo rm -rf /opt/eve-linux-setup
+```
+
+Do NOT remove `/opt/google` - it contains some files needed by the audio setup.
 
 [ansible]: https://ansible.com
 [pixelbook_product_page]: https://www.google.com/chromebook/device/google-pixelbook/
