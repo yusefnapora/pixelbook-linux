@@ -70,6 +70,22 @@ Before you start, you'll need to have the following things to complete the proce
 - A Linux machine, or a Windows PC that can run Linux from a USB drive.
   - This is required for disabling write protect. Note that the process requires that the second
     machine run Linux and will not work from macOS or Windows.
+- A willingness to accept that this is a potentially destructive process that may render your
+  expensive Pixelbook inoperable or otherwise busted. See the [scary disclaimer](#disclaimer) below.
+
+### Disclaimer
+
+The process described in this document could cause irreversible damage to your expensive laptop, and
+you should prepare yourself mentally and emotionally for that outcome before you begin.
+
+I accept absolutely no responsibility for the consequences of anyone choosing to follow or ignore any
+of the instructions in this document, and make no guarantees about the quality or effectiveness of the
+software in this repo.
+
+That said, the chances of damage are quite low, and you're (presumably) all adults capable of weighing
+your own risk/reward thresholds. If you get into a jam, raise an issue in this repo and I'll try to
+help as time allows.
+
 
 ### Flashing UEFI Firmware
 
