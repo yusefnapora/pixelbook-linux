@@ -47,7 +47,7 @@ Here's what's working at the moment:
 | Sound              | Broken               | Working, [see details](implementation-details.md#audio-support) |
 | Keyboard backlight | Broken               | Working (using helper script to adjust)                         |
 | Swap               | Working              | Unsupported, [see swap](implementation-details.md#swap-support) |
-| Hibernate          | Untested             | Unsupported, [see details](implementation-details#hibernation)  |
+| Hibernate          | Untested             | Unsupported, [see details](implementation-details.md#hibernation)  |
 
 
 ## Installation
