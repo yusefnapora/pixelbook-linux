@@ -50,227 +50,254 @@ Here's what's working at the moment:
 | Hibernate          | Untested             | Unsupported, see [hibernation](#hibernation) |
 |                    |                      |                                              |
 
-## Implementation details
-
-If you're not interested in the details, you can skip ahead to the [installation instructions](#installation), but
-it might be worhth giving this section a skim so you can see what's going on and fix things if they break later.
-
-This section refers to the modifications performed by the automatic configuration script in this repo. For details
-on unlocking the write protect setting and installing linux in the first place, see the [installation instructions](#installation).
-
-### Kernel
-
-The kernel is compiled from Google's ChromiumOS fork of the linux kernel, which enables support for the display
-backlight controls and the audio hardware.
-
-This approach was heavily inspired by [@megabytefisher's brilliant hack](https://github.com/megabytefisher/eve-linux-hacks),
-the key insight of which is to compile the chromium fork of the linux kernel with a configuration that's as close to the
-one used by the stock Pixelbook as possible. Many thanks to [@megabytefisher](https://github.com/megabytefisher), and I
-hope that my work will be useful to them as well.
-
-The configuration is copied from `@megabytefisher's`, with some very small modifications since I'm using a slightly newer
-version of the kernel (`4.4.178` vs `4.4.164`).
-
-#### Swap support
-
-The chromium fork of the kernel does not support swapping to disk 
-[by design](https://www.chromium.org/chromium-os/chromiumos-design-docs/chromium-os-kernel#Swap_6152778388932347_77212105),
-to prevent wearing out the flash chips that are commonly used for storage on ChromeOS devices.
-
-It is possible to enable swapping to a portion of ram that's been setup to compress its contents using a kernel feature called 
-[zram](https://en.wikipedia.org/wiki/Zram).
-
-I haven't bothered enabling this in the automatic install script, but I have manually verified that it works. If you're interested, 
-[the chromeos swap setup script](https://chromium.googlesource.com/chromiumos/platform/init/+/factory-3536.B/swap.conf)
-may prove useful in figuring out how to set it up.
-
-#### Hibernation
-
-Hibernation is a power state where the contents of ram are written out to disk, to prevent loss of data in the case of complete
-power loss. Because this feature relies on a disk-based swap partition or file, it's not possible to enable while running the
-chromium-flavored kernel.
-
-In practice, the suspend state should last for several days before draining the battery completely, which is good enough for me.
-
-### Firmware
-
-Again, this is inspired by `@megabytefisher`. To enable the audio hardware, we need some firmware files that can be
-extracted from a Pixelbook recovery image. The automated configuration script will pull all the firmware files from
-the recovery image and install them to the correct place, and also pull some configuration needed for full audio
-support using `cras`.
-
-### Audio support
-
-Once we're running the chromium-flavored kernel with the firware files in place, we can access the raw audio hardware,
-and `aplay -l` should show some output devices. However, the Pixelbook uses an audio chip that's not well supported by
-the linux audio "userland" components (ALSA and pulseaudio). As a result, both ALSA and pulseaudio can only playback
-through the internal speakers, and there's no way to switch to the headphones. Recording is also unsupported out of
-the box, as none of the capture devices are recognized.
-
-This was a deal-breaker for me, since my hope for this machine was to use it for work, where I often need to participate
-in video calls.
-
-#### Background info
-
-Before getting into the solution, let me give a quick overview of how audio on linux works, filtered through my super
-limited understanding.
-
-At the bottom is the hardware driver, which takes the form of a kernel module, which in our case also requires some
-special firmware files. Once those are in place, the audio hardware is avalable outside of the kernel. However,
-the "interface" for using the hardware is extremely low-level and not directly usable by most linux programs and
-end users.
-
-The layer just above the kernel is [ALSA](https://www.alsa-project.org/wiki/Main_Page), the Advanced Linux Sound Architecture.
-This provides a common interface to the many, many kinds of audio drivers exposed by the kernel. It lets you do things
-like adjust the volume and other parameters exposed by the driver, and provides a high-level API that applications can
-use to play and record audio.
-
-Above ALSA is [pulseaudio](https://www.freedesktop.org/wiki/Software/PulseAudio/), which serves as an "audio server", allowing
-many "client" applications to all share the same audio hardware, something which is quite difficult with ALSA alone.  PulseAudio
-is used by Gnome and other desktop environments; when you move the volume slider in the Gnome UI, it tells the PulseAudio server
-to adjust the volume on the current output device. PulseAudio uses ALSA for the acutal playback and recording, although I think
-it also supports other backends.
-
-#### How to get "perfect" audio on the pixelbook
-
-The problem with audio on the Pixelbook is that neither ALSA nor PulseAudio are configured to use the specific controls and devices
-provided by the kernel audio driver. ALSA tries to map the driver interfaces to known configurations, but since there's no special
-mapping for the Pixelbook chip, it falls back on the default "Analog Stereo" profile, which only supports the internal speakers.
-
-Everything works great on ChromeOS, of course, because Google has put in the engineering work to get everything playing nice with
-the hardware. However, while ChromeOS uses ALSA, it doesn't use it directly, and it also doesn't use PulseAudio. Instead, Google
-wrote their own audio server, [`cras`](https://www.chromium.org/chromium-os/chromiumos-design-docs/cras-chromeos-audio-server),
-the Chromium OS Audio Server. This serves the same purpose as PulseAudio but consumes fewer resources.
-
-I spent a little while trying to figure out how to get ALSA and PulseAudio to play nice with the Pixelbook audio driver, but I
-didn't manage to make any headway.
-
-The breakthrough came when I saw that [crouton](https://github.com/dnschneid/crouton) supports audio by actually compiling `cras` inside the
-`chroot` environment and letting `cras` talk to ALSA and manage the hardware. I had already discovered that the eve recovery image contained
-configuration files for `cras` that are specific to the pixelbook hardware, so I figured that the best shot of getting everything to work
-would be to get `cras` in the mix.
-
-I decided to try compiling `cras` and running it inside the standard linux environment to see if it could make sense of the weird
-hardware interface provided by the driver and exposed by ALSA. Some hours later, it works!
-
-After compiling `cras` and running it (with the config files in the right place), the `cras_test_client` included with `cras` can
-switch between speakers & headphones (and also HDMI 1 and HDMI 2, but I haven't tried using those yet). It can also switch between
-a headset mic and the internal mic, and exposes "loopback" capture devices to record whatever is playing through the output device.
-
-You can also use `cras_test_client` to test audio playback and recording - to see if things are working try
-`cras_test_client --playback_file /usr/share/sounds/alsa/Front_Left.wav`.
-
-Included with `cras` are some ALSA plugins that create a new virtual ALSA device named `cras` - if those are in the right place
-(`/usr/lib/x86_64-linux-gnu/alsa-lib/` on Ubuntu), apps that support ALSA can target that device and the audio will be routed
-to `cras`, which will then send it back to ALSA, this time targeting the actual hardware devices.
-
-The final piece of the puzzle is PulseAudio, which will let us use the standard Gnome volume controls and basically let the
-rest of the system pretend that we're using a standard audio setup.
-
-Once again, crouton shows the way - the [crouton pulseaudio config](https://github.com/dnschneid/crouton/blob/master/chroot-etc/pulseaudio-default.pa)
-routes audio through the special `cras` ALSA device, which then sends audio to `cras`, which sends it back to ALSA, which
-finally sends it to the kernel, where it hits the hardware at last.
-
-Here's a picture of this Rube Goldberg contraption:
-
-```
-                    cras uses ALSA's real audio
-                    devices for the hardware         +---------------+
-                    exposed by the driver            |               |
-                                                     |     cras      |
-                               +---------------------+               |
-                               |                     |               |
-                               v                     +-------|-------+
-+--------------+      +--------|------+                      ^  Audio sent to the "cras" ALSA
-|              |      |               |                      |  device gets routed to cras,
-|    Audio     +<-----+     ALSA      +----------------------+  which sends it back to the
-|    Driver    |      |               |                         the real hardware ALSA device
-|              |      |               |              +---------------+
-+--------------+      +-------|-------+              |               |
-                              ^                      |  pulseaudio   |
-                              +----------------------+               |
-                                                     |               |
-                            pulse uses the           +---------------+
-                            virtual "cras" ALSA device
-```
-
-#### Switching audio devices
-
-I was feeling pretty smug when I got audio working through the headphones, but the process of switching devices wasn't very
-pleasant. Because pulseaudio only sees a single audio device (the virtual `cras` ALSA device), you can't use the built-in
-output switching provided by Gnome, etc. What you can do is use the `cras_test_client` included with `cras` to tell `cras`
-what output and input you want to use.
-
-The basic process works like this:
-
-1. run `cras_test_client` with no arguments to get a status report, including the names and IDs of all the input and output devices
-2. find the ID of the output device you want to target (will be two numbers separated by `:`, e.g. `7:0`)
-3. run `cras_test_client --select_output $id_from_step_2`
-
-This seemed like a job for a hacky script, so I wrote one up. The `eve-audio-ctl.py` script that gets installed when you run the
-automated setup script wraps `cras_test_client` and parses the device IDs, so you can just do e.g. `eve-audio-ctl.py -o headphone`.
-
-Running `eve-audio-ctl.py` with no arguments will show a list of available audio devices and indicate which is active.
-
-The final piece of the puzzle is automatically switching inputs when headphones are plugged or unplugged. For this, I used the
-`acpi_listen` command, which writes messages to stdout when headphones and microphones are plugged in or removed. If you run
-`eve-audio-ctl.py -j`, the script will listen for events and switch to headphones when they're plugged in and speakers when
-the headphones are unplugged. It will also switch the input to the headset mic if one is plugged, and switch back to the
-internal mic if removed.
-
-The automatic install also creates a systemd service called `eve-headphone-jack-listener`, which runs the script automatically
-in the background, so everything should "just work" as expected without having to explicitly run the script.
-
-### Keyboard backlight
-
-When running the chromium-flavored kernel, the keyboard backlight can be controlled by writing an integer value between 0 and 100
-to `/sys/class/leds/chromeos::kbd_backlight/brightness`, e.g. `echo 100 > '/sys/class/leds/chromeos::kbd_backlight/brightness'`.
-By default only `root` has permission to do this, so the automatic install script installs a udev rules file to grant permission
-to an `leds` group, and also makes sure the group exists and the main user account is a member.
-
-There's also a `eve-keyboard-brightness.sh` script installd in `/usr/local/bin` that you can use to more easily set the brightness:
-
-- Set brightness to absolute level between 0 and 100: `eve-keyboard-brightness.sh 100`.
-- Adjust brightness by relative amount: `eve-keyboard-brightness.sh +10`
-  - handy for assigning to a keyboard shortcut
-  
-### Touchpad
-
-By default, the pixelbook touchpad feels off in non-ChromeOS linux, requiring too much pressure to move the cursor. This can be fixed by 
-[fiddling with libinput debug tools](https://wayland.freedesktop.org/libinput/doc/latest/touchpad-pressure-debugging.html#touchpad-pressure-hwdb)
-and creating a `/etc/libinput/local-overrides.quirks` file. 
-
-An earlier version of this repo included a quirks file to set the sensitivity, but I realized I could do one better by
-once again building some ChromeOS platform code for vanilla linux.
-
-ChromeOS has its own X11 input driver called `cmt` (for Chromium Multi Touch), which is why the touchpad feels so
-much nicer on ChromeOS than most flavors of linux.
-
-I found a [fork of the `xf86-input-cmt` driver by @hugegreenbug](https://github.com/hugegreenbug/xf86-input-cmt/),
-which convinced me to try compiling it. Because @hugegreenbug's repo hasn't been updated in a few years, I decided
-to make my own patches based on his changes and apply them during the automatic configuration process.
-
-Running the automatic config script will build the input driver and its dependencies and install everything into
-the right place. On reboot, you should have nice touchpad sensitivity, and you'll be able to scroll much more
-smoothly.
-
-### Remapping non-standard keyboard keys
-
-The Pixelbook keyboard has three non-standard keys, the search key that takes the place of Caps Lock, the "hamburger" key in the upper right, and the Google Assistant key betweeen left control and left alt.
-The hamburger key is automatically recognized as F13, and search gets mapped to Left Super, but the assistant key is ignored.
-
-The automatic install adds a `/lib/udev/hwdb.d/61-eve-keyboard.hwdb` file that remaps the assistant key to Right Super. 
-If you'd prefer a different key, or to map the search key to something else,
-see [Running the install script](#running-the-install-script) for details on how to customize.
-
 
 ## Installation
 
-Instructions coming soon!
+There are three main phases involved in getting from a stock Pixelbook to a really nice Ubuntu install:
 
-If you've already managed to disable write protect and install vanilla ubuntu 19.04, you should be able to
-clone this repo and run `./run-ansible.sh`.
+1. [Flash UEFI firmware](#flashing-uefi-firmware)
+2. [Install stock Ubuntu](#installing-stock-ubuntu)
+3. [Run the automatic configuration script](#running-the-install-script)
 
+Once the install is complete, you'll probably want to read the [post-install notes](#after-the-install)
+to learn about the quirks that were added.
+
+### Requirements
+
+Before you start, you'll need to have the following things to complete the process:
+
+- A [SuzyQable CCD Debugging cable][suzyqable], ~$15 USD + shipping
+- 2 USB flash drives with USB-C connectors or adapters. Anything over 2GB should be fine
+- A Linux machine, or a Windows PC that can run Linux from a USB drive.
+  - This is required for disabling write protect. Note that the process requires that the second
+    machine run Linux and will not work from macOS or Windows.
+
+### Flashing UEFI Firmware
+
+To boot operating systems other than ChromeOS, we need to replace the Pixelbook firmware with a more
+standard UEFI firmare implementation.
+
+Luckily, the indefatigable [MrChromebox](https://mrchromebox.tech) has developed a full replacement
+firmware for many ChromeOS devices, including the Pixelbook.
+
+However, before we can flash the firmware, we need to disable a security feature called Firmware Write Protect.
+
+#### Disabling Write Protect
+
+The Pixelbook (like all ChromeOS devices), ships with the firmware Write Protect setting enabled, which prevents
+us from mucking about with the firmware.
+
+The Write Protect setting is enforced by an embedded controller called `cr50`.
+
+There are two ways to disable the Write Protect setting: disassemble the Pixelbook and remove the battery cable,
+or buy a special debugging cable for ~$15 USD.
+
+I'm guessing that most people reading this would rather do the latter, so this guide assumes you've already
+[bought the cable][suzyqable] and have a spare Linux machine nearby to run the debug commands. If you only
+have access to a Windows machine, you can boot from the same Ubuntu live installation USB drive that you'll
+be using later to [install Ubuntu](#installing-stock-ubuntu).
+
+##### Prepare the Pixelbook for closed-case-debugging
+
+Before we can connect our special debug cable, we need to enable Closed Case Debugging (ccd) mode on the
+Pixelbook.
+
+First, [enable Developer Mode](https://www.lifewire.com/how-to-enable-chromebook-developer-mode-4173431) on
+your Pixelbook.
+
+Once you're running in Developer mode, open a `crosh` shell by pressing `Ctrl+Alt+T` and then type `shell`
+at the prompt.
+
+We'll be using the `gsctool` command to "open" the CCD mode.
+
+I made an asciinema cast to walk through opening CCD mode that might be helpful:
+
+[![asciicast](https://asciinema.org/a/241078.svg)](https://asciinema.org/a/241078)
+
+If you'd rather not sit through that, the quick version is:
+
+```bash
+# at the crosh shell on the Pixelbook, in developer mode:
+gsctool -a --ccd_open
+```
+
+This will take several minutes, and you have to sit by the Pixelbook the whole time,
+since it will periodically ask you to press the "PP** button, meaning the Pixelbook
+power button. Tap the button when asked, and eventually the Pixelbook will abruptly
+power down.
+
+**Important:** when the Pixelbook reboots, it will take itself out of Developer Mode!
+
+Immediately after the reboot, shut down the Pixelbook, then boot it again holding `Ctrl-R`.
+It will start in recovery mode, and you can press `Ctrl-D` to re-enable Developer Mode.
+
+When you're back in Developer mode, open a `crosh` shell again and enter:
+
+```bash
+gsctool -a --ccd_info
+```
+
+In the status report that follows, you should see `State: Open`. This means the Pixelbook
+is ready to accept CCD commands using the special cable.
+
+##### Use the CCD cable to connect to the cr50 console
+
+Okay, it's special cable time!
+
+While the Pixelbook is running, take the CCD debug cable and connect the USB-C end to the 
+**left USB-C port** on the Pixelbook. The right port **will not work!**.
+
+Take the other end of the cable and attach it to your Linux machine. You should see some new
+`ttyUSB` devices in `/dev`, e.g. `/dev/ttyUSB0`, `/dev/ttyUSB1`, etc.
+
+**Important Note**: If you don't see the `/dev/ttyUSB` devices showing up when you plug in the
+cable, flip the USB-C connector that's plugged into the Pixelbook over! Unlike most USB-C cables,
+the pins on the CCD cable **are not bidirectional.**
+
+Make sure the `minicom` command is installed on your Linux machine. For Ubuntu:
+
+```bash
+sudo apt install -y python3-serial
+```
+
+Now you can use `minicom` to connect to `/dev/ttyUSB0`, which should be the `cr50` serial console:
+
+```bash
+minicom /dev/ttyUSB0
+```
+
+Type `help` at the prompt. One of the commands listed should be called `wp`; if it's missing, try
+connecting to one of the other serial consoles (`ttyUSB1` or `ttyUSB2`) instead.
+
+Now we can disable write protect by entering:
+
+```
+wp disable
+wp disable at_boot
+```
+
+The first command will disable write protect, but it will come back on reboot unless you enter the
+second command as well. 
+
+It's up to you wheteher you want to permanently disable write protect using the `at_boot` flag; 
+we don't actually need to reboot the machine in order to flash the firmware. I set mine to disabled 
+at boot just in case things went wrong, to make it easier to recover.
+
+Alright, now that you've disabled Write Protect, you can flash the firmware!
+
+You won't be needing the CCD cable anymore, so feel free to disconnect it and put away the Linux
+machine you used for the unlocking process.
+
+#### Flashing the firmware
+
+We'll be using MrChromebox's [firmware utility script](https://mrchromebox.tech/#fwscript) to flash
+the UEFI firmware.
+
+I made an ascii-cast for this as well, if you want to follow along:
+
+[![asciicast](https://asciinema.org/a/241665.svg)](https://asciinema.org/a/241665)
+
+On the Pixelbook, open a `crosh` shell and enter:
+
+```
+cd; curl -LO https://mrchromebox.tech/firmware-util.sh && sudo bash firmware-util.sh
+```
+
+At the prompt, enter the number for "Install / Update Full ROM Firmware" and follow the
+prompts.
+
+**Important:** Make a backup when prompted! This is why the requirements section told you to get
+2 USB flash drives. Seriously, USB drives are dirt cheap; don't skip this step.
+
+After a couple minutes, you should be all set! Say goodbye to ChromeOS; by flashing this firmware
+you lose the ability to boot into ChromeOS, and you'll need to restore your firmware from the
+backup if you want to go back.
+
+### Installing stock Ubuntu
+
+Now that you're running a standard UEFI firmware, installing Ubuntu works just like on a standard
+laptop.
+
+Download an ISO image for [Ubuntu Desktop 19.04][ubuntu_dl] - other versions might work, but I make absolutely
+no guarantees, and I won't be able to help you out if things are broken. Note that I might not be
+able to help regardless, but if you run into issues and you're not running the same distro as me,
+chances are much higher I'll shrug my shoulders and ineffectually wish you good luck, rather than
+offering any useful help.
+
+Write the image to disk using whatever method seems best - this is pretty Google-friendly & depends
+on your setup, so I'll let you figure this bit out.
+
+Now attach the drive to your Pixelbook and boot.
+
+You may need to press `Esc` when booting to bring up the UEFI menu. From there, select "Boot Manager"
+and choose the USB device as the boot target.
+
+You should now boot into the Ubuntu installer.
+
+**Note:** due to wonky touchpad support in the default Ubuntu kernel, the touchpad might not work
+unless you wiggle the cursor when the system is booting. If your mouse cursor isn't working in the
+installer (or in the stock Ubuntu install afterward), try rebooting and continuously moving your
+finger around on the trackpad while the system starts.
+
+Now you can go ahead an install Ubuntu using the standard method. The installer defaults should all
+work fine, although I recommend encrypting your disk, or at least enabling LVM for volume management.
+
+Note that you'll have to erase the entire Pixelbook disk; since we can't boot back to ChromeOS anyway,
+this is no big loss.
+
+After a little while, you should get a message that your install is complete, and you can remove the USB
+drive and reboot. When the system comes back up, you can run my install script to finish the setup.
+
+### Running the install script
+
+Boot into your new fresh Ubuntu install and log in.
+
+Open a terminal and run the following to install some bare-minimum requirements:
+
+```bash
+sudo apt install -y git python ansible
+
+# replace the values below with your info!
+git config --global user.name "Your Name"
+git config --global user.email "your@email.com"
+```
+
+Now clone this repository:
+
+```bash
+git clone https://github.com/yusefnapora/pixelbook-linux
+```
+
+Enter the `pixelbook-linux` directory and run the install script:
+
+```bash
+cd pixelbook-linux
+./run-ansible.sh
+```
+
+The script will ask you a couple of questions, after which it will spend ~20 minutes
+downloading and installing stuff. If you don't know how to answer the questions, just
+accept the defaults.
+
+If everything goes well, the script should complete successfully, and you can now
+reboot:
+
+```bash
+sudo reboot
+```
+
+When the system comes back up, you should boot into the ChromiumOS-flavored kernel.
+You'll be able to tell that you're using the correct kernel by the display backlight
+becoming very dim just after boot. Once the GUI is up, you can adjust the backlight
+using the Gnome slider in the upper-right corner.
+
+### After the install
+
+Coming soon: description of the quirks and helper scripts that were installed.
+
+For now, read through the [implementation details](implementation-details.md).
 
 ansible: https://ansible.com
 pixelbook_product_page: https://www.google.com/chromebook/device/google-pixelbook/
+suzyqable: https://www.sparkfun.com/products/14746
+ubuntu_dl: https://www.ubuntu.com/download/desktop/thank-you?country=US&version=19.04&architecture=amd64
