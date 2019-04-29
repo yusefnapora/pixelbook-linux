@@ -36,18 +36,18 @@ of the way there.
 
 Here's what's working at the moment:
 
-| Feature            | Stock Ubuntu         | After modifications                                             |
-|--------------------|----------------------|-----------------------------------------------------------------|
-| WiFi               | Working              | Working                                                         |
-| Bluetooth          | Working              | Working                                                         |
-| Touchscreen        | Working              | Working                                                         |
-| Suspend            | Working              | Working                                                         |
-| Touchpad           | Working, but awkward | Working (tweaked to feel nice)                                  |
-| Display backlight  | Always on at 100%    | Adjustable using standard controls                              |
-| Sound              | Broken               | Working, [see details](implementation-details.md#audio-support) |
-| Keyboard backlight | Broken               | Working (using helper script to adjust)                         |
-| Swap               | Working              | Unsupported, [see swap](implementation-details.md#swap-support) |
-| Hibernate          | Untested             | Unsupported, [see details](implementation-details.md#hibernation)  |
+| Feature            | Stock Ubuntu         | After modifications                                               |
+|--------------------|----------------------|-------------------------------------------------------------------|
+| WiFi               | Working              | Working                                                           |
+| Bluetooth          | Working              | Working                                                           |
+| Touchscreen        | Working              | Working                                                           |
+| Suspend            | Working              | Working                                                           |
+| Touchpad           | Working, but awkward | Working (tweaked to feel nice)                                    |
+| Display backlight  | Always on at 100%    | Adjustable using standard controls                                |
+| Sound              | Broken               | Working, [see details](implementation-details.md#audio-support)   |
+| Keyboard backlight | Broken               | Working (using helper script to adjust)                           |
+| Swap               | Working              | Unsupported, [see swap](implementation-details.md#swap-support)   |
+| Hibernate          | Untested             | Unsupported, [see details](implementation-details.md#hibernation) |
 
 
 ## Installation
