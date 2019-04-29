@@ -121,7 +121,7 @@ gsctool -a --ccd_open
 ```
 
 This will take several minutes, and you have to sit by the Pixelbook the whole time,
-since it will periodically ask you to press the "PP** button, meaning the Pixelbook
+since it will periodically ask you to press the "PP" button, meaning the Pixelbook
 power button. Tap the button when asked, and eventually the Pixelbook will abruptly
 power down.
 
