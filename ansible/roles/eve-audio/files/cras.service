@@ -9,7 +9,7 @@ Restart=always
 RestartSec=1
 User=cras
 Group=cras
-ExecStart=/usr/local/bin/cras --syslog_mask=7
+ExecStart=/usr/local/bin/cras
 
 [Install]
 WantedBy=multi-user.target
