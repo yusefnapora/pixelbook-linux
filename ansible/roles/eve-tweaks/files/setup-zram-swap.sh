@@ -21,7 +21,7 @@ HIST_ARGS="$HIST_MIN $HIST_MAX $HIST_BUCKETS"
 # NOTE: this could be done with "read", "case", and a function
 # that sets ram=$2, for a savings of about 3ms on an Alex.
 ram=$(awk '/MemTotal/ { print $2; }' < /proc/meminfo)
-[ "$ram" = "" ] && logger -t "$UPSTART_JOB" "could not get MemTotal"
+[ "$ram" = "" ] && logger -t "$LOG_TAG" "could not get MemTotal"
 
 # compute fraction of total RAM used for low-mem margin.  The fraction is
 # given in bips.  A "bip" or "basis point" is 1/100 of 1%.  This unit is
