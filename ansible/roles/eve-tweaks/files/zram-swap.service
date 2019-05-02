@@ -1,0 +1,8 @@
+[Unit]
+Description=ZRam Swap support (swap to compressed ram)
+
+[Service]
+ExecStart=/usr/local/sbin/setup-zram-swap.sh
+
+[Install]
+WantedBy=multi-user.target

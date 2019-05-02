@@ -28,9 +28,13 @@ to prevent wearing out the flash chips that are commonly used for storage on Chr
 It is possible to enable swapping to a portion of ram that's been setup to compress its contents using a kernel feature called 
 [zram](https://en.wikipedia.org/wiki/Zram).
 
-I haven't bothered enabling this in the automatic install script, but I have manually verified that it works. If you're interested, 
-[the chromeos swap setup script](https://chromium.googlesource.com/chromiumos/platform/init/+/factory-3536.B/swap.conf)
-may prove useful in figuring out how to set it up.
+The automatic install will add a `/usr/local/sbin/setup-zram-swap.sh` script and a `zram-swap` systemd service
+that runs the setup script at boot. By default the script will enable zram-based swap of about 1.5x the size
+of physical RAM. I have no idea if this is a good value or not; the script is a minimally altered version of
+[the chromiumos swap setup script](https://chromium.googlesource.com/chromiumos/platform/init/+/factory-3536.B/swap.conf).
+
+The size of the zram swap allocation can be controlled by writing an integer value to `/root/.zram-swap`.
+Check [the setup script source](ansible/roles/eve-tweaks/files/setup-zram-swap.sh) for valid values. 
 
 #### Hibernation
 

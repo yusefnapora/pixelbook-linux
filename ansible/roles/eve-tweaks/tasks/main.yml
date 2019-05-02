@@ -6,6 +6,30 @@
     src: modprobe-blacklist.conf
     dest: /lib/modprobe.d/eve-blacklist.conf
 
+### Enable zram swap
+- name: Copy zram setup script
+  become: true
+  copy:
+    src: setup-zram-swap.sh
+    dest: /usr/local/sbin/setup-zram-swap.sh
+    owner: root
+    group: root
+    mode: 0744
+
+- name: Copy zram-swap systemd service file
+  become: true
+  copy:
+    src: zram-swap.service
+    dest: /etc/systemd/system/zram-swap.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Enable zram-swap systemd service
+  become: true
+  command: systemctl enable zram-swap
+  args:
+    creates: /etc/systemd/system/multi-user.target.wants/zram-swap.service
 
 ### keyboard backlight
 
