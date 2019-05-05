@@ -64,10 +64,8 @@ to learn about the quirks that were added.
 Before you start, you'll need to have the following things to complete the process:
 
 - A [SuzyQable CCD Debugging cable][suzyqable], ~$15 USD + shipping
+- A USB-A to USB-C adapter
 - 2 USB flash drives with USB-C connectors or adapters. Anything over 2GB should be fine
-- A Linux machine, or a Windows PC that can run Linux from a USB drive.
-  - This is required for disabling write protect. Note that the process requires that the second
-    machine run Linux and will not work from macOS or Windows.
 - A willingness to accept that this is a potentially destructive process that may render your
   expensive Pixelbook inoperable or otherwise busted. See the [scary disclaimer](#disclaimer) below.
 
@@ -106,9 +104,7 @@ There are two ways to disable the Write Protect setting: disassemble the Pixelbo
 or buy a special debugging cable for ~$15 USD.
 
 I'm guessing that most people reading this would rather do the latter, so this guide assumes you've already
-[bought the cable][suzyqable] and have a spare Linux machine nearby to run the debug commands. If you only
-have access to a Windows machine, you can boot from the same Ubuntu live installation USB drive that you'll
-be using later to [install Ubuntu](#installing-stock-ubuntu).
+[bought the cable][suzyqable].
 
 ##### Prepare the Pixelbook for closed-case-debugging
 
@@ -157,26 +153,42 @@ is ready to accept CCD commands using the special cable.
 
 Okay, it's special cable time!
 
-While the Pixelbook is running, take the CCD debug cable and connect the USB-C end to the 
-**left USB-C port** on the Pixelbook. The right port **will not work!**.
+We'll be using the Pixelbook to debug itself, so plug the USB-A end of the cable into
+the USB-A to USB-C adapter and plug the adapter into the **right USB-C port** on the
+Pixelbook. The USB-C end of the CCD cable must be plugged into the **left USB-C** port.
 
-Take the other end of the cable and attach it to your Linux machine. You should see some new
-`ttyUSB` devices in `/dev`, e.g. `/dev/ttyUSB0`, `/dev/ttyUSB1`, etc.
-
-**Important Note**: If you don't see the `/dev/ttyUSB` devices showing up when you plug in the
-cable, flip the USB-C connector that's plugged into the Pixelbook over! Unlike most USB-C cables,
-the pins on the CCD cable **are not bidirectional.**
-
-Make sure the `minicom` command is installed on your Linux machine. For Ubuntu:
+Now check to see if new `ttyUSB` devices show up in `/dev`:
 
 ```bash
-sudo apt install -y python3-serial
+ls /dev/tty*
 ```
 
-Now you can use `minicom` to connect to `/dev/ttyUSB0`, which should be the `cr50` serial console:
+**Important Note**: If you don't see any `/dev/ttyUSB` devices showing up when you plug in the
+cable, flip the USB-C end of the CCD cable over! Unlike most USB-C cables, the pins on the CCD 
+cable **are not bidirectional.**
+
+To connect to the new USB serial devices, you can use the `pyserial` python module, which includes
+a cli tool called `miniterm`.
+
+To get python and pyserial, first install [chromebrew](https://github.com/skycocker/chromebrew):
 
 ```bash
-minicom /dev/ttyUSB0
+curl -Ls git.io/vddgY | bash
+```
+
+Once chromebrew is installed, use it to install python, then install pyserial with pip:
+
+```bash
+crew install python27
+
+# once python is installed:
+pip install pyserial
+```
+
+Now you can use the pyserial module to connect to `/dev/ttyUSB0`, which should be the `cr50` serial console:
+
+```bash
+python -m serial.tools.miniterm /dev/ttyUSB0
 ```
 
 Type `help` at the prompt. One of the commands listed should be called `wp`; if it's missing, try
@@ -200,11 +212,9 @@ ccd set OverrideWP Always
 ccd set FlashAP Always
 ```
 
-
 Alright, now that you've disabled Write Protect, you can flash the firmware!
 
-You won't be needing the CCD cable anymore, so feel free to disconnect it and put away the Linux
-machine you used for the unlocking process.
+You won't be needing the CCD cable anymore, so feel free to disconnect it and put it away.
 
 #### Flashing the firmware
 
