@@ -401,7 +401,7 @@ The latter form is especially handy when bound to a keyboard shortcut.
 #### Remapping keyboard keys
 
 If you decide after the install that you want the change the keyboard mapping,
-you can edit `/lib/udev/hwdb.d/61-eve-keyboard.hwdb` and change the keycodes
+you can edit `/lib/udev/hwdb.d/61-eve-keyboard.hwdb` as root and change the keycodes
 on the right-hand of the equal signs for the keys you want to change.
 
 A list of valid keycodes can be found in [ansible/keycodes.txt](ansible/keycodes.txt).
