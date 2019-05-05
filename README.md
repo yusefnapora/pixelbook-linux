@@ -18,9 +18,7 @@ box on Ubuntu, whereas Fedora required some fiddling post-install.
 
 ## Why
 
-Because [fuck Apple](https://www.wsj.com/graphics/apple-still-hasnt-fixed-its-macbook-keyboard-problem/), that's why.
-
-More seriously, I absolutely love the Pixelbook hardware. The keyboard is better than any laptop keyboard I've ever used,
+I absolutely love the Pixelbook hardware. The keyboard is better than any laptop keyboard I've ever used,
 including the sorely missed pre-butterfly MacBook Pro keyboards. I also really like the 3:2 screen aspect ratio, the 
 beautiful chassis and design, etc.
 
