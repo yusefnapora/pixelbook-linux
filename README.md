@@ -137,8 +137,9 @@ power down.
 
 **Important:** when the Pixelbook reboots, it will take itself out of Developer Mode!
 
-Immediately after the reboot, shut down the Pixelbook, then boot it again holding `Ctrl-R`.
-It will start in recovery mode, and you can press `Ctrl-D` to re-enable Developer Mode.
+Once it's done resetting back to normal mode, turn off the machine and reboot while
+holding `Esc` and `Refresh` (the key with the circular arrow icon). At the recovery
+boot prompt, press `Ctrl-D` to re-enable Developer mode.
 
 When you're back in Developer mode, open a `crosh` shell again and enter:
 
