@@ -322,11 +322,99 @@ using the Gnome slider in the upper-right corner.
 
 ### After the install
 
-Coming soon: description of the quirks and helper scripts that were installed.
+Here's some info about the scripts and other customizations I added. If you're interested
+in the details or for more context, see the [implementation details doc](implementation-details.md).
 
-For now, read through the [implementation details](implementation-details.md).
+#### Switching audio outputs & inputs
 
-Note that the install process will dump some files into `/opt/eve-linux-setup` that
+Support for the audio hardware relies on a component called `cras`, short for
+the Chromium Audio Server. The install script will build `cras` for vanilla Linux
+and add configuration for ALSA and Pulseaudio to make things work, however, there's
+no way to switch between headphone and speaker outputs using the standard GUI controls.
+
+To work around this, I wrote a little python script called `eve-audio-ctl.py`
+that wraps the `cras_test_client` program that gets built alongside `cras`.
+
+Running the script with no arguments will show some status output:
+
+```bash
+$ eve-audio-ctl.py
+Output Devices:
+	hdmi2
+	hdmi1
+active:	headphone
+	speaker
+
+Input Devices:
+	mic
+active:	internal_mic
+	post_dsp_loopback
+	post_mix_pre_dsp_loopback
+```
+
+To switch outputs, use `eve-audio-ctl.py -o <output-name>`, e.g. `eve-audio-ctl.py -o speaker`.
+
+Switching inputs works much the same, but with `-i` instead of `-o`: `eve-audio-ctl.py -i internal_mic`
+
+Since it's nice to automatically switch to headphones when they're plugged in, there's also a `-j` flag
+that will listen for plug and unplug events. When headphones are plugged in, it will automatically switch
+the audio output to the headphones, and when they're removed it will switch to speakers. Likewise, if you
+plug in a headset with a microphone, it will switch the input to `mic` and switch back to `internal_mic`
+when removed.
+
+The script needs to be running to detect the events, so I also added a systemd service that runs the script
+at boot. If you'd rather not have the script running, you can disable it with: `sudo systemctl disable eve-headphone-jack-listener`.
+
+Unfortunately the script isn't smart enough to detect whether the headphones are plugged in when the
+system first starts - it can only detect changes, not the current state. So at boot the output will
+always default to speakers if you're running the systemd service.
+
+Note that currently the volume won't be changed when you switch devices, so if you're playing audio through
+headphones and suddenly switch to speakers, it might be louder than you expect.
+
+#### Keyboard backlight
+
+You can control the brightness of the keyboard backlight by running the `eve-keyboard-brightness.sh` script.
+
+The script can either set the brightness to an absolute value between 1 and 100, e.g.:
+
+```bash
+# set brightness to 50%
+eve-keyboard-brightness.sh 50
+
+# turn backlight off:
+eve-keyboard-brightness.sh 0
+```
+
+Or, you can adjust the current brightness by prefixing a number with either `+` or `-`:
+```bash
+# increase brightness by 10:
+eve-keyboard-brightness.sh +10
+
+# decrease by 20:
+eve-keyboard-brightness.sh -20
+```
+
+The latter form is especially hand when bound to a keyboard shortcut.
+
+#### Remapping keyboard keys
+
+If you decide after the install that you want the change the keyboard mapping,
+you can edit `/lib/udev/hwdb.d/61-eve-keyboard.hwdb` and change the keycodes
+on the right-hand of the equal signs for the keys you want to change.
+
+A list of valid keycodes can be found in [ansible/keycodes.txt](ansible/keycodes.txt).
+
+After changing the file, you'll need to reload your hwdb config:
+
+```bash
+sudo udevadm hwdb --update
+sudo udevadm trigger
+```
+
+#### Cleaning up installation files
+
+The install process will dump some files into `/opt/eve-linux-setup` that
 can be safely removed afterward to reclaim ~1.5 GB of space. If you're not interested
 in fiddling around with the installer setup, it's a good idea to remove that directory:
 
@@ -335,6 +423,8 @@ sudo rm -rf /opt/eve-linux-setup
 ```
 
 Do NOT remove `/opt/google` - it contains some files needed by the audio setup.
+
+
 
 [ansible]: https://ansible.com
 [pixelbook_product_page]: https://www.google.com/chromebook/device/google-pixelbook/
