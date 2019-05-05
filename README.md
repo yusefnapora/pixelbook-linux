@@ -187,16 +187,21 @@ connecting to one of the other serial consoles (`ttyUSB1` or `ttyUSB2`) instead.
 Now we can disable write protect by entering:
 
 ```
-wp disable
-wp disable at_boot
+wp false
+wp false atboot
 ```
 
 The first command will disable write protect, but it will come back on reboot unless you enter the
 second command as well. 
 
-It's up to you whether you want to permanently disable write protect using the `at_boot` flag; 
-we don't actually need to reboot the machine in order to flash the firmware. I set mine to disabled 
-at boot just in case things went wrong, to make it easier to recover.
+We also want to change some of the CCD capabilities, so that if flashing the firmware fails, we can
+recover without needing to open the CCD again:
+
+```
+ccd set OverrideWP Always
+ccd set FlashAP Always
+```
+
 
 Alright, now that you've disabled Write Protect, you can flash the firmware!
 
