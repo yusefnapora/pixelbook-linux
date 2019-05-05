@@ -387,6 +387,7 @@ eve-keyboard-brightness.sh 0
 ```
 
 Or, you can adjust the current brightness by prefixing a number with either `+` or `-`:
+
 ```bash
 # increase brightness by 10:
 eve-keyboard-brightness.sh +10
@@ -395,7 +396,7 @@ eve-keyboard-brightness.sh +10
 eve-keyboard-brightness.sh -20
 ```
 
-The latter form is especially hand when bound to a keyboard shortcut.
+The latter form is especially handy when bound to a keyboard shortcut.
 
 #### Remapping keyboard keys
 
