@@ -168,50 +168,26 @@ ls /dev/tty*
 cable, flip the USB-C end of the CCD cable over! Unlike most USB-C cables, the pins on the CCD 
 cable **are not bidirectional.**
 
-To connect to the new USB serial devices, you can use the `pyserial` python module, which includes
-a cli tool called `miniterm`.
-
-To get python and pyserial, first install [chromebrew](https://github.com/skycocker/chromebrew):
-
-```bash
-curl -Ls git.io/vddgY | bash
-```
-
-Once chromebrew is installed, use it to install python, then install pyserial with pip:
-
-```bash
-crew install python27
-
-# once python is installed:
-pip install pyserial
-```
-
-Now you can use the pyserial module to connect to `/dev/ttyUSB0`, which should be the `cr50` serial console:
-
-```bash
-python -m serial.tools.miniterm /dev/ttyUSB0
-```
-
-Type `help` at the prompt. One of the commands listed should be called `wp`; if it's missing, try
-connecting to one of the other serial consoles (`ttyUSB1` or `ttyUSB2`) instead.
-
-Now we can disable write protect by entering:
+Now we can send commands to the `cr50` console at `/dev/ttyUSB0`:
 
 ```
-wp false
-wp false atboot
+sudo su -
+echo "wp false" > /dev/ttyUSB0
+echo "wp false atboot" > /dev/ttyUSB0
+echo "ccd set OverrideWP Always" > /dev/ttyUSB0
+echo "ccd set FlashAP Always" > /dev/ttyUSB0
 ```
 
-The first command will disable write protect, but it will come back on reboot unless you enter the
-second command as well. 
+That will disable write protect, and also change the capabilities to allow overriding the write
+protect setting and flashing the firmware even if the CCD is locked. This makes it possible to
+recover if anything goes wrong during flashing and makes it easier to restore the original
+firmawre.
 
-We also want to change some of the CCD capabilities, so that if flashing the firmware fails, we can
-recover without needing to open the CCD again:
+Once you've issued the commands above, check the status with `gsctool -a -I` - you should see
+that the `OverrideWP` and `FlashAP` capabilities have changed from the default of `IfOpened`
+to `Always`.
 
-```
-ccd set OverrideWP Always
-ccd set FlashAP Always
-```
+Now run `crossystem wpsw_cur` to verify the current write protect setting.
 
 Alright, now that you've disabled Write Protect, you can flash the firmware!
 
