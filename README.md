@@ -48,6 +48,15 @@ Here's what's working at the moment:
 | Hibernate          | Untested             | Unsupported, [see details](implementation-details.md#hibernation) |
 
 
+**Known limitations**:
+
+- It seems like dual-boot setups (and possibly other installs that don't use
+  full UEFI firmware) [fail to extract files from the recovery
+  image](https://github.com/yusefnapora/pixelbook-linux/issues/3).
+  
+Please [open an issue](https://github.com/yusefnapora/pixelbook-linux/issues/new) if you find other problems.
+
+
 ## Installation
 
 There are three main phases involved in getting from a stock Pixelbook to a really nice Ubuntu install:
