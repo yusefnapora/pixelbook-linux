@@ -53,6 +53,10 @@ Here's what's working at the moment:
 - It seems like dual-boot setups (and possibly other installs that don't use
   full UEFI firmware) [fail to extract files from the recovery
   image](https://github.com/yusefnapora/pixelbook-linux/issues/3).
+- Running the install script while booting from an external USB has not been
+  verified to work, and might suffer from a similar issue. Please update 
+  [this issue](https://github.com/yusefnapora/pixelbook-linux/issues/1) if
+  you're able to test it out.
   
 Please [open an issue](https://github.com/yusefnapora/pixelbook-linux/issues/new) if you find other problems.
 
