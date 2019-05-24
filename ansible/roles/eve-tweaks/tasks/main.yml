@@ -31,6 +31,14 @@
   args:
     creates: /etc/systemd/system/multi-user.target.wants/zram-swap.service
 
+### tweak touchpad pressure for libinput
+
+- name: Copy libinput touchpad pressure tweak file
+  become: true
+  copy:
+    src: libinput-local-overrides.quirks
+    dest: /etc/libinput/local-overrides.quirks
+
 ### keyboard backlight
 
 - name: Ensure "leds" group exists
