@@ -290,6 +290,7 @@ Enter the `pixelbook-linux` directory and run the install script:
 
 ```bash
 cd pixelbook-linux
+sudo mkdir /etc/libinput/
 ./run-ansible.sh
 ```
 
@@ -303,6 +304,10 @@ reboot:
 ```bash
 sudo reboot
 ```
+
+You should NOT boot into the main Ubuntu kernel as it contains none of the drivers just 
+compiled into the kernel. By default, the script selects the "Advanced" option submenu.
+You should pick the submenu and then the ChromiumOS kernel.
 
 When the system comes back up, you should boot into the ChromiumOS-flavored kernel.
 You'll be able to tell that you're using the correct kernel by the display backlight
