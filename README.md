@@ -293,6 +293,13 @@ cd pixelbook-linux
 ./run-ansible.sh
 ```
 
+Alternative to build the kernel from source:
+
+```bash
+cd pixelbook-linux
+./run-ansible.sh -e "kernel_install_type=src"
+```
+
 The script will ask you a couple of questions, after which it will spend ~20 minutes
 downloading and installing stuff. If you don't know how to answer the questions, just
 accept the defaults.
