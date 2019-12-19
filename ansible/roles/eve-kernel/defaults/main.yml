@@ -10,9 +10,9 @@ force_kernel_install: false
 eve_kernel_name: "4.4.178chromium-g4245c5e1"
 
 # vars for source build
-eve_kernel_branch: release-R75-12105.B-chromeos-4.4
-eve_kernel_compiled_name: vmlinuz-4.4.178chromium-g4245c5e1
-eve_kernel_config_file: eve-R75-12105.B-4.4.178.config
+eve_kernel_branch: release-R80-12739.B-chromeos-4.4
+eve_kernel_compiled_name: vmlinuz-4.4.205chromium-g3c27733e
+eve_kernel_config_file: eve-R80-12739.B-chromeos-4.4.config
 eve_kernel_workdir: "{{ main_workdir }}/kernel"
 
 # vars for deb package install
