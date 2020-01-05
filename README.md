@@ -194,7 +194,7 @@ echo "ccd set FlashAP Always" > /dev/ttyUSB0
 That will disable write protect, and also change the capabilities to allow overriding the write
 protect setting and flashing the firmware even if the CCD is locked. This makes it possible to
 recover if anything goes wrong during flashing and makes it easier to restore the original
-firmawre.
+firmware.
 
 Once you've issued the commands above, check the status with `gsctool -a -I` - you should see
 that the `OverrideWP` and `FlashAP` capabilities have changed from the default of `IfOpened`
