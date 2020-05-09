@@ -10,7 +10,7 @@ the battery cable to disable the firmware write protect. This method avoids the 
 you will need to spend ~$20 USD on a special USB cable. See the [installation instructions](#installation)
 for details.
 
-The automated configuration targets Ubuntu 19.04 (Disco Dingo), although it's likely that the basic techniques
+The automated configuration targets Ubuntu 19.10 (Eoan Ermine), although it's likely that the basic techniques
 used will work for any distribution. I initially tried using Fedora Workstation 29, but ran into an issue where
 the system would crash immediately after resuming from suspend. I assumed this was due to my tweaks, but decided
 to give another distro a shot and found Ubuntu worked without issue. As a nice bonus, bluetooth works out of the
@@ -236,7 +236,7 @@ backup if you want to go back.
 Now that you're running a standard UEFI firmware, installing Ubuntu works just like on a standard
 laptop.
 
-Download an ISO image for [Ubuntu Desktop 19.04][ubuntu_dl] - other versions might work, but I make absolutely
+Download an ISO image for [Ubuntu Desktop 19.10][ubuntu_dl] - other versions might work, but I make absolutely
 no guarantees, and I won't be able to help you out if things are broken. Note that I might not be
 able to help regardless, but if you run into issues and you're not running the same distro as me,
 chances are much higher I'll shrug my shoulders and ineffectually wish you good luck, rather than
@@ -256,6 +256,10 @@ You should now boot into the Ubuntu installer.
 unless you wiggle the cursor when the system is booting. If your mouse cursor isn't working in the
 installer (or in the stock Ubuntu install afterward), try rebooting and continuously moving your
 finger around on the trackpad while the system starts.
+
+Your screen might come up upside down. This is due to auto screen rotation. You can rotate your machine
+upside down, then click triangle at top right, and click the button with lock sign inside rotating arrows.
+This will "lock screen rotation" so it will stay in the correct direction.
 
 Now you can go ahead and install Ubuntu using the standard method. The installer defaults should all
 work fine, although I recommend encrypting your disk, or at least enabling LVM for volume management.
@@ -426,4 +430,4 @@ Do NOT remove `/opt/google` - it contains some files needed by the audio setup.
 [ansible]: https://ansible.com
 [pixelbook_product_page]: https://www.google.com/chromebook/device/google-pixelbook/
 [suzyqable]: https://www.sparkfun.com/products/14746
-[ubuntu_dl]: https://www.ubuntu.com/download/desktop/thank-you?country=US&version=19.04&architecture=amd64
+[ubuntu_dl]: https://releases.ubuntu.com/19.10/ubuntu-19.10-desktop-amd64.iso
