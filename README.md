@@ -348,6 +348,18 @@ You'll be able to tell that you're using the correct kernel by the display backl
 becoming very dim just after boot. Once the GUI is up, you can adjust the backlight
 using the Gnome slider in the upper-right corner.
 
+Once you are logged in, you can also check the kernel version with `uname -r`. You should
+see something like `4.4.205chromium-gdc1f94d5` and not `5.something.something`. If that holds,
+you can go ahead and drop the old kernel. This is optional.
+
+```bash
+sudo apt-get purge linux-image*
+sudo apt-get autoremove
+```
+
+Feel free to do another restart to make sure it still works.
+
+
 ### After the install
 
 Here's some info about the scripts and other customizations I added. If you're interested
