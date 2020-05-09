@@ -299,7 +299,7 @@ git config --global user.email "your@email.com"
 Now clone this repository:
 
 ```bash
-git clone https://github.com/yusefnapora/pixelbook-linux
+git clone https://github.com/flantel/pixelbook-linux
 ```
 
 Enter the `pixelbook-linux` directory and run the install script:
