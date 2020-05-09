@@ -302,14 +302,7 @@ Now clone this repository:
 git clone https://github.com/flantel/pixelbook-linux
 ```
 
-Enter the `pixelbook-linux` directory and run the install script:
-
-```bash
-cd pixelbook-linux
-./run-ansible.sh
-```
-
-Alternative to build the kernel from source:
+Enter the `pixelbook-linux` directory and run following:
 
 ```bash
 cd pixelbook-linux
