@@ -316,8 +316,28 @@ The script will ask you a couple of questions, after which it will spend ~20 min
 downloading and installing stuff. If you don't know how to answer the questions, just
 accept the defaults.
 
-If everything goes well, the script should complete successfully, and you can now
-reboot:
+If everything goes well, the script should complete successfully.
+
+Optionally, if you want to see which-kernel-is-which in boot menu, you can edit grub config:
+
+```bash
+sudo gedit /etc/default/grub
+```
+
+There, update `GRUB_TIMEOUT` and add `GRUB_TIMEOUT_STYLE`.
+
+```
+GRUB_TIMEOUT=5
+GRUB_TIMEOUT_STYLE="menu"
+```
+
+After saving the file, you have to run:
+
+```bash
+sudo update-grub
+```
+
+Now you can reboot:
 
 ```bash
 sudo reboot
