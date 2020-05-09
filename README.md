@@ -305,6 +305,8 @@ git clone https://github.com/flantel/pixelbook-linux
 Enter the `pixelbook-linux` directory and run following:
 
 ```bash
+sudo apt-get install gcc-8 g++-8
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
 cd pixelbook-linux
 ./run-ansible.sh -e "kernel_install_type=src"
 ```
