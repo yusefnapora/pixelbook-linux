@@ -212,6 +212,14 @@ You won't be needing the CCD cable anymore, so feel free to disconnect it and pu
 We'll be using MrChromebox's [firmware utility script](https://mrchromebox.tech/#fwscript) to flash
 the UEFI firmware.
 
+Before we begin, we need to remount two folders this script will use with exec.
+Run following in `crosh` shell.
+
+```
+sudo mount /tmp -o remount,exec
+sudo mount /home/chronos/user -o remount,exec
+```
+
 I made an ascii-cast for this as well, if you want to follow along:
 
 [![asciicast](https://asciinema.org/a/241665.svg)](https://asciinema.org/a/241665)
