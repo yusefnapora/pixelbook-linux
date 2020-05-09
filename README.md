@@ -189,6 +189,7 @@ echo "wp false" > /dev/ttyUSB0
 echo "wp false atboot" > /dev/ttyUSB0
 echo "ccd set OverrideWP Always" > /dev/ttyUSB0
 echo "ccd set FlashAP Always" > /dev/ttyUSB0
+echo "ccd reset factory" > /dev/ttyUSB0
 ```
 
 That will disable write protect, and also change the capabilities to allow overriding the write
@@ -197,10 +198,10 @@ recover if anything goes wrong during flashing and makes it easier to restore th
 firmawre.
 
 Once you've issued the commands above, check the status with `gsctool -a -I` - you should see
-that the `OverrideWP` and `FlashAP` capabilities have changed from the default of `IfOpened`
-to `Always`.
+everything listed there have "Always". Some of them are changed from "IfOpened" (in parentheses).
 
-Now run `crossystem wpsw_cur` to verify the current write protect setting.
+Now run `crossystem wpsw_cur` to verify the current write protect setting. This should show `0`.
+Also do `crossystem wpsw_boot` to verify write protect status on boot. This should be `0` too.
 
 Alright, now that you've disabled Write Protect, you can flash the firmware!
 
