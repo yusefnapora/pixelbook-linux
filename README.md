@@ -236,6 +236,9 @@ prompts.
 **Important:** Make a backup when prompted! This is why the requirements section told you to get
 2 USB flash drives. Seriously, USB drives are dirt cheap; don't skip this step.
 
+This backup does not make a bootable USB. It creates a `stock-firmware-EVE-<date>.rom` file in
+the external USB flash drive. The file is about 15 MB.
+
 After a couple minutes, you should be all set! Say goodbye to ChromeOS; by flashing this firmware
 you lose the ability to boot into ChromeOS, and you'll need to restore your firmware from the
 backup if you want to go back.
