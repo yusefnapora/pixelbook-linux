@@ -19,7 +19,7 @@ box on Ubuntu, whereas Fedora required some fiddling post-install.
 ## Why
 
 I absolutely love the Pixelbook hardware. The keyboard is better than any laptop keyboard I've ever used,
-including the sorely missed pre-butterfly MacBook Pro keyboards. I also really like the 3:2 screen aspect ratio, the 
+including the sorely missed pre-butterfly MacBook Pro keyboards. I also really like the 3:2 screen aspect ratio, the
 beautiful chassis and design, etc.
 
 I bought the machine in the first place because I was excited about [Crostini](https://reddit.com/r/crostini), which is
@@ -54,10 +54,10 @@ Here's what's working at the moment:
   full UEFI firmware) [fail to extract files from the recovery
   image](https://github.com/yusefnapora/pixelbook-linux/issues/3).
 - Running the install script while booting from an external USB has not been
-  verified to work, and might suffer from a similar issue. Please update 
+  verified to work, and might suffer from a similar issue. Please update
   [this issue](https://github.com/yusefnapora/pixelbook-linux/issues/1) if
   you're able to test it out.
-  
+
 Please [open an issue](https://github.com/yusefnapora/pixelbook-linux/issues/new) if you find other problems.
 
 
@@ -99,7 +99,7 @@ help as time allows.
 ### Flashing UEFI Firmware
 
 To boot operating systems other than ChromeOS, we need to replace the Pixelbook firmware with a more
-standard UEFI firmare implementation.
+standard UEFI firmware implementation.
 
 Luckily, the indefatigable [MrChromebox](https://mrchromebox.tech) has developed a full replacement
 firmware for many ChromeOS devices, including the Pixelbook.
@@ -178,7 +178,7 @@ ls /dev/tty*
 ```
 
 **Important Note**: If you don't see any `/dev/ttyUSB` devices showing up when you plug in the
-cable, flip the USB-C end of the CCD cable over! Unlike most USB-C cables, the pins on the CCD 
+cable, flip the USB-C end of the CCD cable over! Unlike most USB-C cables, the pins on the CCD
 cable **are not bidirectional.**
 
 Now we can send commands to the `cr50` console at `/dev/ttyUSB0`:
@@ -195,7 +195,7 @@ echo "ccd reset factory" > /dev/ttyUSB0
 That will disable write protect, and also change the capabilities to allow overriding the write
 protect setting and flashing the firmware even if the CCD is locked. This makes it possible to
 recover if anything goes wrong during flashing and makes it easier to restore the original
-firmawre.
+firmware.
 
 Once you've issued the commands above, check the status with `gsctool -a -I` - you should see
 everything listed there have "Always". Some of them are changed from "IfOpened" (in parentheses).
