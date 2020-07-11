@@ -1,5 +1,7 @@
 # Installing "real" linux on a Google Pixelbook
 
+NOTE: This is a fork of https://github.com/yusefnapora/pixelbook-linux 
+
 This repo documents the process of replacing ChromeOS on a stock [Google Pixelbook][pixelbook_product_page]
 with a "real" linux distribution. It also contains an automated configuration script that will fix things
 that are broken in a stock install, like sound, display and keyboard backlights, touchpad sensitivity, etc.
@@ -19,7 +21,7 @@ box on Ubuntu, whereas Fedora required some fiddling post-install.
 ## Why
 
 I absolutely love the Pixelbook hardware. The keyboard is better than any laptop keyboard I've ever used,
-including the sorely missed pre-butterfly MacBook Pro keyboards. I also really like the 3:2 screen aspect ratio, the 
+including the sorely missed pre-butterfly MacBook Pro keyboards. I also really like the 3:2 screen aspect ratio, the
 beautiful chassis and design, etc.
 
 I bought the machine in the first place because I was excited about [Crostini](https://reddit.com/r/crostini), which is
@@ -54,10 +56,10 @@ Here's what's working at the moment:
   full UEFI firmware) [fail to extract files from the recovery
   image](https://github.com/yusefnapora/pixelbook-linux/issues/3).
 - Running the install script while booting from an external USB has not been
-  verified to work, and might suffer from a similar issue. Please update 
+  verified to work, and might suffer from a similar issue. Please update
   [this issue](https://github.com/yusefnapora/pixelbook-linux/issues/1) if
   you're able to test it out.
-  
+
 Please [open an issue](https://github.com/yusefnapora/pixelbook-linux/issues/new) if you find other problems.
 
 
@@ -178,7 +180,7 @@ ls /dev/tty*
 ```
 
 **Important Note**: If you don't see any `/dev/ttyUSB` devices showing up when you plug in the
-cable, flip the USB-C end of the CCD cable over! Unlike most USB-C cables, the pins on the CCD 
+cable, flip the USB-C end of the CCD cable over! Unlike most USB-C cables, the pins on the CCD
 cable **are not bidirectional.**
 
 Now we can send commands to the `cr50` console at `/dev/ttyUSB0`:
@@ -305,7 +307,7 @@ reboot:
 sudo reboot
 ```
 
-You should NOT boot into the main Ubuntu kernel as it contains none of the drivers just 
+You should NOT boot into the main Ubuntu kernel as it contains none of the drivers just
 compiled into the kernel. By default, the script selects the "Advanced" option submenu.
 You should pick the submenu and then the ChromiumOS kernel.
 
