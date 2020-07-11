@@ -1,5 +1,6 @@
 ---
 - name: Create working dir to build packages
+  tags: "audio"
   become: true
   file:
     path: "{{ main_workdir }}"
@@ -9,12 +10,14 @@
 ###### Build and install cras (chromium audio server)
 
 - name: clone cras source
+  tags: "audio"
   git:
     repo: 'https://chromium.googlesource.com/chromiumos/third_party/adhd'
     version: "{{ adhd_version }}"
     dest: "{{ adhd_workdir }}"
 
 - name: generate cras/config (failure expected)
+  tags: "audio"
   command: make
   args:
     creates: "{{ cras_workdir }}/configure"
@@ -22,18 +25,21 @@
   ignore_errors: true
 
 - name: configure cras
+  tags: "audio"
   command: "env {{ cras_configure_env }} ./configure {{ cras_configure_opts }}"
   args:
     creates: "{{ cras_workdir }}/Makefile"
     chdir: "{{ cras_workdir }}"
 
 - name: build cras
+  tags: "audio"
   command: "make"
   args:
     creates: "{{ cras_workdir }}/src/cras"
     chdir: "{{ cras_workdir }}"
 
-- name: install cras server binary 
+- name: install cras server binary
+  tags: "audio"
   become: true
   copy:
     remote_src: true
@@ -42,6 +48,7 @@
     mode: 0755
 
 - name: install cras_test_client binary
+  tags: "audio"
   become: true
   copy:
     remote_src: true
@@ -50,6 +57,7 @@
     mode: 0755
 
 - name: install cras library
+  tags: "audio"
   become: true
   copy:
     remote_src: true
@@ -57,10 +65,12 @@
     dest: "{{ system_lib_dir }}"
 
 - name: run ldconfig on cras library
+  tags: "audio"
   become: true
   command: "ldconfig -l {{ system_lib_dir }}/libcras.so.{{ cras_lib_version }}"
 
 - name: install cras / alsa plugin libs
+  tags: "audio"
   become: true
   copy:
     remote_src: true
@@ -71,36 +81,42 @@
     - libasound_module_pcm_cras.so
 
 - name: ensure /etc/alsa/conf.d exists
+  tags: "audio"
   become: true
   file:
     path: /etc/alsa/conf.d
     state: directory
 
 - name: copy cras-enabled alsa config
+  tags: "audio"
   become: true
   copy:
     src: cras-alsa.conf
     dest: /etc/alsa/conf.d/10-cras.conf
 
 - name: ensure /etc/pulse exists
+  tags: "audio"
   become: true
   file:
     path: /etc/pulse
     state: directory
 
 - name: copy cras-enabled pulseaudio config
+  tags: "audio"
   become: true
   copy:
     src: pulse-default.pa
     dest: /etc/pulse/default.pa
 
 - name: create cras group
+  tags: "audio"
   become: true
   group:
     name: cras
     state: present
 
 - name: create cras user
+  tags: "audio"
   become: true
   user:
     name: cras
@@ -109,26 +125,31 @@
     groups: cras,audio
 
 - name: add login user to cras group
+  tags: "audio"
   become: true
   command: "usermod -aG cras {{ login_user }}"
 
 - name: add cras systemd service file
+  tags: "audio"
   become: true
   copy:
     src: cras.service
     dest: /etc/systemd/system/cras.service
 
 - name: enable cras systemd service
+  tags: "audio"
   become: true
   command: "systemctl enable cras"
 
 - name: copy cras tmpfiles.d entry
+  tags: "audio"
   become: true
   copy:
     src: cras-tmpfiles.conf
     dest: /etc/tmpfiles.d/cras.conf
 
 - name: copy eve-audio-ctl python script
+  tags: "audio"
   become: true
   copy:
     src: eve-audio-ctl.py
@@ -136,6 +157,7 @@
     mode: 0775
 
 - name: copy headphone jack listener systemd service file
+  tags: "audio"
   become: true
   copy:
     src: eve-headphone-jack-listener.service
@@ -143,10 +165,11 @@
     mode: 0644
 
 - name: enable acpid service (needed by headphone jack listener script)
+  tags: "audio"
   become: true
   command: "systemctl enable acpid"
 
 - name: enable headphone jack listener service
+  tags: "audio"
   become: true
   command: "systemctl enable eve-headphone-jack-listener"
-
