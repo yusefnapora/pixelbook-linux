@@ -1,5 +1,6 @@
 ---
-- name: Install apt packages 
+- name: Install apt packages
+  tags: common
   become: true
   apt:
     name:
@@ -23,5 +24,4 @@
       - libspeex-dev
       - libspeexdsp-dev
       - libasound2-dev
-    state: latest 
-
+    state: latest

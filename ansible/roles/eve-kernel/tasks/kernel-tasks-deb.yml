@@ -1,20 +1,24 @@
 ---
 - name: Install kernel image package
+  tags: kernel
   become: true
   apt:
     deb: "{{ kernel_image_deb }}"
 
 - name: Install debug kernel image package
+  tags: kernel
   become: true
   apt:
     deb: "{{ kernel_debug_deb }}"
 
 - name: Install kernel headers package
+  tags: kernel
   become: true
   apt:
     deb: "{{ kernel_headers_deb }}"
 
 - name: Install kernel firmware image package
+  tags: kernel
   become: true
   apt:
     deb: "{{ kernel_firmware_deb }}"

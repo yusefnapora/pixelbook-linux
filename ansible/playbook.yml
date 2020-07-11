@@ -13,27 +13,32 @@
       private: no
 
   tasks:
-  # - name: Install pre-requisites
-  #   include_role:
-  #     name: common
-  #
-  # - name: Extract files from eve recovery image
-  #   include_role:
-  #     name: eve-recovery-files
-  #
-  # - name: Install chromium fork of linux kernel
-  #   include_role:
-  #     name: eve-kernel
-  #
+  - name: Install pre-requisites
+    tags: common
+    include_role:
+      name: common
+
+  - name: Extract files from eve recovery image
+    tags: recovery
+    include_role:
+      name: eve-recovery-files
+
+  - name: Install chromium fork of linux kernel
+    tags: kernel
+    include_role:
+      name: eve-kernel
+
   - name: Install Chrome Audio Server and sound setup files
     tags: audio
     include_role:
       name: eve-audio
-  #
-  # - name: Install ChromeOS X11 touchpad driver
-  #   include_role:
-  #     name: eve-touchpad
-  #
-  # - name: Install misc tweaks
-  #   include_role:
-  #     name: eve-tweaks
+
+  - name: Install ChromeOS X11 touchpad driver
+    tags: touchpad
+    include_role:
+      name: eve-touchpad
+
+  - name: Install misc tweaks
+    tags: tweaks
+    include_role:
+      name: eve-tweaks

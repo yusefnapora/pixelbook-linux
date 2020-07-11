@@ -1,25 +1,29 @@
 ---
 - name: Create working dir to build packages
+  tags: recovery
   become: true
   file:
     path: "{{ main_workdir }}"
     mode: 0777
     state: directory
 
- #### Copy files from eve recovery image 
+ #### Copy files from eve recovery image
 
 - name: Download eve recovery image
+  tags: recovery
   get_url:
     url: "https://dl.google.com/dl/edgedl/chromeos/recovery/{{ eve_recovery_image }}.zip"
     dest: "{{ main_workdir }}/eve-recovery.zip"
     checksum: "sha256:{{ eve_recovery_image_sha256 }}"
 
 - name: Check if we've unzipped recovery image
+  tags: recovery
   register: image_unzipped
   stat:
     path: "{{ main_workdir }}/{{ eve_recovery_image }}"
 
 - name: Unzip recovery image
+  tags: recovery
   when: image_unzipped.stat.exists == False
   unarchive:
     src: "{{ main_workdir }}/eve-recovery.zip"
@@ -27,11 +31,13 @@
     remote_src: yes
 
 - name: Map recovery image to loopback device
+  tags: recovery
   become: true
   command: "kpartx -av {{ main_workdir }}/{{ eve_recovery_image }}"
   register: kpartx_output
 
 - name: Find mapper device to use for mounting image
+  tags: recovery
   set_fact:
     mapper_device: "{{ kpartx_output.stdout | regex_search(regexp, '\\1') | first }}"
   vars:
@@ -41,56 +47,64 @@
     msg: "mapper device: {{ mapper_device }}"
 
 - name: Create mount point
+  tags: recovery
   file:
     path: "{{ recovery_mount_point }}"
     state: directory
 
 - name: Mount recovery image
+  tags: recovery
   become: true
   mount:
     path: "{{ recovery_mount_point }}"
-    src: "/dev/mapper/{{ mapper_device }}" 
+    src: "/dev/mapper/{{ mapper_device }}"
     fstype: ext2
     opts: ro
     state: mounted
 
 - name: Ensure /opt/google exists
+  tags: recovery
   become: true
   file:
     path: /opt/google
     state: directory
 
 - name: Copy files from /opt/google on recovery image
+  tags: recovery
   become: true
   command: "rsync -av {{ recovery_mount_point }}/opt/google/{{ item }} /opt/google"
   with_items:
     - disk
     - dsm
-    - kbl-rt5514-hotword-support 
+    - kbl-rt5514-hotword-support
     - touch
 
 - name: Copy all firmware files from recovery image to /lib/firmware
+  tags: recovery
   become: true
   command: "rsync -av {{ recovery_mount_point }}/lib/firmware/ /lib/firmware/"
 
 - name: Ensure /usr/share/alsa/ucm exists
+  tags: recovery
   become: true
   file:
     path: /usr/share/alsa/ucm
     state: directory
 
 - name: Copy the alsa UCM configuration for eve's soundcard from recovery image
+  tags: recovery
   become: true
   command: "rsync -av {{ recovery_mount_point }}/usr/share/alsa/ucm/kbl_r5514_5663_max /usr/share/alsa/ucm"
 
 
 - name: Copy cras souncard config files from recovery image
+  tags: recovery
   become: true
   command: "rsync -av {{ recovery_mount_point }}/etc/cras {{ cras_etc_dir }}"
 
 - name: Unmount recovery image
+  tags: recovery
   become: true
   mount:
     path: "{{ recovery_mount_point }}"
     state: absent
- 

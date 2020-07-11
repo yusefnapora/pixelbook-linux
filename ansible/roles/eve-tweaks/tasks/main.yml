@@ -1,6 +1,7 @@
 ---
  ### blacklist intel sound module (required for audio)
 - name: Copy module blacklist file
+  tags: tweaks
   become: true
   copy:
     src: modprobe-blacklist.conf
@@ -8,6 +9,7 @@
 
 ### Enable zram swap
 - name: Copy zram setup script
+  tags: tweaks
   become: true
   copy:
     src: setup-zram-swap.sh
@@ -17,6 +19,7 @@
     mode: 0744
 
 - name: Copy zram-swap systemd service file
+  tags: tweaks
   become: true
   copy:
     src: zram-swap.service
@@ -26,6 +29,7 @@
     mode: 0644
 
 - name: Enable zram-swap systemd service
+  tags: tweaks
   become: true
   command: systemctl enable zram-swap
   args:
@@ -34,6 +38,7 @@
 ### tweak touchpad pressure for libinput
 
 - name: Copy libinput touchpad pressure tweak file
+  tags: tweaks
   become: true
   copy:
     src: libinput-local-overrides.quirks
@@ -42,21 +47,25 @@
 ### keyboard backlight
 
 - name: Ensure "leds" group exists
+  tags: tweaks
   become: true
   group:
     name: leds
 
 - name: Ensure login user is in "leds" group
+  tags: tweaks
   become: true
   command: "usermod -aG leds {{ login_user }}"
 
 - name: Copy pixelbook udev rules file
+  tags: tweaks
   become: true
   copy:
     src: keyboard-backlight-udev.rules
     dest: /lib/udev/rules.d/99-pixelbook.rules
 
 - name: Copy brightness control script
+  tags: tweaks
   become: true
   copy:
     src: eve-keyboard-brightness.sh
@@ -66,12 +75,13 @@
 
 ### Map google assistant key to super
 #
-#   note: change eve_keyboard_assistant_keycode var if you want a 
+#   note: change eve_keyboard_assistant_keycode var if you want a
 #   different keycode for the google assistant key.
 #
 #   you can also set eve_keyboard_search_keycode to remap the search
 #   key from its default of Left Super (keycode leftmeta)
 - name: Copy keyboard hwdb file to remap assistant key
+  tags: tweaks
   become: true
   template:
     src: 61-eve-keyboard.hwdb.j2
@@ -81,9 +91,11 @@
     group: root
 
 - name: Update hwdb to load keyboard rules
+  tags: tweaks
   become: true
   command: "udevadm hwdb --update"
 
 - name: Trigger udev to apply keyboard rules
+  tags: tweaks
   become: true
   command: "udevadm trigger"

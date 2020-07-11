@@ -2,6 +2,7 @@
 
 # Todo: move apt install to common role
 - name: Install build dependencies
+  tags: touchpad
   become: true
   apt:
     name:
@@ -13,29 +14,34 @@
 
 # libevdev (chromium fork)
 - name: Clone chromium fork of libevdev
+  tags: touchpad
   git:
     repo: "{{ libevdev_repo_url }}"
     dest: "{{ libevdev_workdir }}"
     version: "{{ libevdev_version }}"
 
 - name: Copy libevdev patch file
+  tags: touchpad
   copy:
     src: "libevdev/{{ libevdev_patch_file }}"
     dest: "{{ libevdev_workdir }}"
 
 - name: Apply libevdev patch file
+  tags: touchpad
   command: "git am {{ libevdev_patch_file }}"
   args:
     chdir: "{{ libevdev_workdir }}"
     creates: "{{ libevdev_workdir }}/src/libevdev-cros.c"
 
 - name: Build libevdev-cros
+  tags: touchpad
   shell: "make"  # this fails with the command module, for some reason
   args:
     chdir: "{{ libevdev_workdir }}"
     creates: "{{ libevdev_workdir }}/src/libevdev-cros.so.0"
 
 - name: Install libevdev-cros
+  tags: touchpad
   become: true
   shell: "make install"
   args:
@@ -46,34 +52,40 @@
 # chromeos gestures lib
 
 - name: Clone libgestures repo
+  tags: touchpad
   git:
     repo: "{{ gestures_repo_url }}"
     dest: "{{ gestures_workdir }}"
     version: "{{ gestures_version }}"
 
 - name: Copy gestures patch file
+  tags: touchpad
   copy:
     src: "gestures/{{ gestures_patch_file }}"
     dest: "{{ gestures_workdir }}"
 
 - name: Check if we need to apply patch
+  tags: touchpad
   register: patch_pre_check
   command: "grep Werror {{ gestures_workdir }}/Makefile"
   ignore_errors: true
 
 - name: Apply patch
+  tags: touchpad
   when: patch_pre_check.rc == 0
   command: "git am {{ gestures_patch_file }}"
   args:
     chdir: "{{ gestures_workdir }}"
 
 - name: Build libgestures
+  tags: touchpad
   command: "make"
   args:
     chdir: "{{ gestures_workdir }}"
     creates: "{{ gestures_workdir }}/obj/libgestures.so.0"
 
 - name: Install libgestures
+  tags: touchpad
   become: true
   command: "make install"
   args:
@@ -83,23 +95,27 @@
 # xf86-input-cmt multi-touch driver
 
 - name: Clone cmt repo
+  tags: touchpad
   git:
     repo: "{{ cmt_repo_url }}"
     dest: "{{ cmt_workdir }}"
     version: "{{ cmt_version }}"
 
 - name: Copy patch files
+  tags: touchpad
   copy:
     src: "xf86-input-cmt/{{ item }}"
     dest: "{{ cmt_workdir }}"
   with_items: "{{ cmt_patch_files }}"
 
 - name: Check if we need to patch
+  tags: touchpad
   register: cmt_patch_precheck
   command: "grep evdev-cros {{ cmt_workdir }}/src/Makefile.am"
   ignore_errors: true
 
 - name: Apply patches
+  tags: touchpad
   when: cmt_patch_precheck.rc != 0
   command: "git am {{ item }}"
   args:
@@ -107,33 +123,39 @@
   with_items: "{{ cmt_patch_files }}"
 
 - name: Generate configure script
+  tags: touchpad
   command: "bash autogen.sh"
   args:
     chdir: "{{ cmt_workdir }}"
 
 - name: Configure cmt input driver
+  tags: touchpad
   command: "./configure --prefix=/usr"
   args:
     chdir: "{{ cmt_workdir }}"
 
 - name: Build cmt input driver
+  tags: touchpad
   command: "make"
   args:
     chdir: "{{ cmt_workdir }}"
 
 - name: Install cmt input driver
+  tags: touchpad
   become: true
   command: "make install"
   args:
     chdir: "{{ cmt_workdir }}"
 
 - name: Ensure /etc/gesture exists
+  tags: touchpad
   become: true
   file:
     path: /etc/gesture
     state: directory
 
 - name: Copy conf files
+  tags: touchpad
   become: true
   copy:
     src: "conf/{{ item }}"
@@ -141,6 +163,7 @@
   with_items: "{{ cmt_conf_files }}"
 
 - name: Link conf files to X11 config dir
+  tags: touchpad
   become: true
   file:
     state: link

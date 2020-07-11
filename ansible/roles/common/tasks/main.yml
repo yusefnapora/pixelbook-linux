@@ -1,11 +1,12 @@
 ---
 - name: install OS packages
+  tags: common
   include_tasks: "packages-{{ ansible_distribution }}.yml"
 
 - name: ensure main working dir exists
+  tags: common
   become: true
   file:
     path: "{{ main_workdir }}"
     mode: 0777
     state: directory
-  

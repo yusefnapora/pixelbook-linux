@@ -1,5 +1,6 @@
 ---
-- name: Install dnf packages 
+- name: Install dnf packages
+  tags: common
   become: true
   dnf:
     name:
@@ -22,5 +23,4 @@
       - ladspa-devel
       - speex-devel
       - speexdsp-devel
-    state: latest 
-
+    state: latest

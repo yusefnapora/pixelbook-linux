@@ -1,5 +1,6 @@
 ---
 - name: Check whether we've installed the kernel already
+  tags: kernel
   register: kernel_pre_installed
   shell: "ls /boot | grep {{ eve_kernel_compiled_name }} > /dev/null"
   ignore_errors: true
@@ -13,10 +14,12 @@
     msg: "Kernel is already installed, but force_kernel_install is set. Attempting install"
 
 - name: Install chromium fork of linux kernel
+  tags: kernel
   when: kernel_pre_installed is failed or force_kernel_install
   include_tasks: "kernel-tasks-{{ kernel_install_type }}.yml"
 
 - name: Check if we've set the default kernel already
+  tags: kernel
   become: true
   command: grep -E '^GRUB_DEFAULT=.*chromium.*$' /etc/default/grub
   register: grub_default_check
@@ -27,5 +30,6 @@
   when: grub_default_check.rc == 0
 
 - name: Set default kernel
+  tags: kernel
   when: grub_default_check.rc != 0
   include_tasks: grub.yml
