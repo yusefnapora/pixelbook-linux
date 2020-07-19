@@ -309,7 +309,7 @@ sudo apt-get install gcc-8 g++-8
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
 sudo mkdir /etc/libinput
 cd pixelbook-linux
-./run-ansible.sh -e "kernel_install_type=src"
+./run-ansible.sh
 ```
 
 The script will ask you a couple of questions, after which it will spend ~20 minutes
