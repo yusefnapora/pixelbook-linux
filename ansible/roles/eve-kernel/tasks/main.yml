@@ -14,7 +14,7 @@
 
 - name: Install chromium fork of linux kernel
   when: kernel_pre_installed is failed or force_kernel_install
-  include_tasks: "kernel-tasks-{{ kernel_install_type }}.yml"
+  include_tasks: "kernel-tasks-src.yml"
 
 - name: Check if we've set the default kernel already
   become: true

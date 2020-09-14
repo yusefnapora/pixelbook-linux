@@ -4,26 +4,11 @@ main_workdir: /opt/eve-linux-setup
 login_user: vagrant # override at command line with local username
 
 # install-kernel.yml
-kernel_install_type: deb
-force_kernel_install: false 
+force_kernel_install: false
 
-eve_kernel_name: "4.4.178chromium-g4245c5e1"
+eve_kernel_name: "4.4.205chromium-gdc1f94d5"
 
-# vars for source build
-eve_kernel_branch: release-R75-12105.B-chromeos-4.4
-eve_kernel_compiled_name: vmlinuz-4.4.178chromium-g4245c5e1
-eve_kernel_config_file: eve-R75-12105.B-4.4.178.config
+eve_kernel_branch: release-R80-12739.B-chromeos-4.4
+eve_kernel_compiled_name: vmlinuz-4.4.205chromium-gdc1f94d5
+eve_kernel_config_file: eve-R80-12739.B-chromeos-4.4.config
 eve_kernel_workdir: "{{ main_workdir }}/kernel"
-
-# vars for deb package install
-gh_base_url: "https://github.com/yusefnapora/pixelbook-linux/releases/download"
-gh_release: "v0.1"
-gh_deb_base_url: "{{ gh_base_url }}/{{ gh_release }}/"
-kernel_deb_revision: "{{ eve_kernel_name }}"
-kernel_deb_arch: "{{ kernel_deb_revision }}_{{ kernel_deb_revision }}_amd64"
-kernel_image_deb: "{{ gh_deb_base_url }}/linux-image-{{ kernel_deb_arch }}.deb"
-kernel_debug_deb: "{{ gh_deb_base_url }}/linux-image-{{ kernel_deb_revision }}-dbg_{{ kernel_deb_revision }}_amd64.deb"
-kernel_headers_deb: "{{ gh_deb_base_url }}/linux-headers-{{ kernel_deb_arch }}.deb"
-kernel_firmware_deb: "{{ gh_deb_base_url }}/linux-firmware-image-{{ kernel_deb_arch }}.deb"
-kernel_libc_dev_deb: "{{ gh_deb_base_url }}/linux-libc-dev_{{ kernel_deb_revision }}_amd64.deb"
-

@@ -8,3 +8,16 @@ evdev:atkbd:dmi:bvn*:bvr*:bd*:svnGoogle:pnEve:pvr*
 # KEYBOARD_KEY_5d=controlpanel
  KEYBOARD_KEY_db={{ eve_keyboard_search_keycode }}
  KEYBOARD_KEY_d8={{ eve_keyboard_assistant_keycode }}
+{% if eve_keyboard_emulate_chromebook == "yes" %}
+ KEYBOARD_KEY_3b=back
+ KEYBOARD_KEY_3c=f5
+ KEYBOARD_KEY_3d=f11
+ KEYBOARD_KEY_3e=print
+ KEYBOARD_KEY_3f=brightnessdown
+ KEYBOARD_KEY_40=brightnessup
+ KEYBOARD_KEY_41=playpause
+ KEYBOARD_KEY_42=mute
+ KEYBOARD_KEY_43=volumedown
+ KEYBOARD_KEY_44=volumeup
+{% endif %}
+

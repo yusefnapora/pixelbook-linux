@@ -1,3 +1,5 @@
+# NOTE: I am no longer using a Pixelbook, so will not be maintaining this. Someone should either fork it or let me know and if they want to be able to commit new changes/PRs - @flantel
+
 # Installing "real" linux on a Google Pixelbook
 
 This repo documents the process of replacing ChromeOS on a stock [Google Pixelbook][pixelbook_product_page]
@@ -10,7 +12,7 @@ the battery cable to disable the firmware write protect. This method avoids the 
 you will need to spend ~$20 USD on a special USB cable. See the [installation instructions](#installation)
 for details.
 
-The automated configuration targets Ubuntu 19.04 (Disco Dingo), although it's likely that the basic techniques
+The automated configuration targets Ubuntu 19.10 (Eoan Ermine), although it's likely that the basic techniques
 used will work for any distribution. I initially tried using Fedora Workstation 29, but ran into an issue where
 the system would crash immediately after resuming from suspend. I assumed this was due to my tweaks, but decided
 to give another distro a shot and found Ubuntu worked without issue. As a nice bonus, bluetooth works out of the
@@ -19,7 +21,7 @@ box on Ubuntu, whereas Fedora required some fiddling post-install.
 ## Why
 
 I absolutely love the Pixelbook hardware. The keyboard is better than any laptop keyboard I've ever used,
-including the sorely missed pre-butterfly MacBook Pro keyboards. I also really like the 3:2 screen aspect ratio, the 
+including the sorely missed pre-butterfly MacBook Pro keyboards. I also really like the 3:2 screen aspect ratio, the
 beautiful chassis and design, etc.
 
 I bought the machine in the first place because I was excited about [Crostini](https://reddit.com/r/crostini), which is
@@ -44,7 +46,7 @@ Here's what's working at the moment:
 | Display backlight  | Always on at 100%    | Adjustable using standard controls                                |
 | Sound              | Broken               | Working, [see details](implementation-details.md#audio-support)   |
 | Keyboard backlight | Broken               | Working (using helper script to adjust)                           |
-| Swap               | Working              | zram swap only [see details](implementation-details#swap-support) |
+| Swap               | Working              | zram swap only [see details](implementation-details.md#swap-support) |
 | Hibernate          | Untested             | Unsupported, [see details](implementation-details.md#hibernation) |
 
 
@@ -54,10 +56,10 @@ Here's what's working at the moment:
   full UEFI firmware) [fail to extract files from the recovery
   image](https://github.com/yusefnapora/pixelbook-linux/issues/3).
 - Running the install script while booting from an external USB has not been
-  verified to work, and might suffer from a similar issue. Please update 
+  verified to work, and might suffer from a similar issue. Please update
   [this issue](https://github.com/yusefnapora/pixelbook-linux/issues/1) if
   you're able to test it out.
-  
+
 Please [open an issue](https://github.com/yusefnapora/pixelbook-linux/issues/new) if you find other problems.
 
 
@@ -99,7 +101,7 @@ help as time allows.
 ### Flashing UEFI Firmware
 
 To boot operating systems other than ChromeOS, we need to replace the Pixelbook firmware with a more
-standard UEFI firmare implementation.
+standard UEFI firmware implementation.
 
 Luckily, the indefatigable [MrChromebox](https://mrchromebox.tech) has developed a full replacement
 firmware for many ChromeOS devices, including the Pixelbook.
@@ -178,7 +180,7 @@ ls /dev/tty*
 ```
 
 **Important Note**: If you don't see any `/dev/ttyUSB` devices showing up when you plug in the
-cable, flip the USB-C end of the CCD cable over! Unlike most USB-C cables, the pins on the CCD 
+cable, flip the USB-C end of the CCD cable over! Unlike most USB-C cables, the pins on the CCD
 cable **are not bidirectional.**
 
 Now we can send commands to the `cr50` console at `/dev/ttyUSB0`:
@@ -189,18 +191,19 @@ echo "wp false" > /dev/ttyUSB0
 echo "wp false atboot" > /dev/ttyUSB0
 echo "ccd set OverrideWP Always" > /dev/ttyUSB0
 echo "ccd set FlashAP Always" > /dev/ttyUSB0
+echo "ccd reset factory" > /dev/ttyUSB0
 ```
 
 That will disable write protect, and also change the capabilities to allow overriding the write
 protect setting and flashing the firmware even if the CCD is locked. This makes it possible to
 recover if anything goes wrong during flashing and makes it easier to restore the original
-firmawre.
+firmware.
 
 Once you've issued the commands above, check the status with `gsctool -a -I` - you should see
-that the `OverrideWP` and `FlashAP` capabilities have changed from the default of `IfOpened`
-to `Always`.
+everything listed there have "Always". Some of them are changed from "IfOpened" (in parentheses).
 
-Now run `crossystem wpsw_cur` to verify the current write protect setting.
+Now run `crossystem wpsw_cur` to verify the current write protect setting. This should show `0`.
+Also do `crossystem wpsw_boot` to verify write protect status on boot. This should be `0` too.
 
 Alright, now that you've disabled Write Protect, you can flash the firmware!
 
@@ -210,6 +213,14 @@ You won't be needing the CCD cable anymore, so feel free to disconnect it and pu
 
 We'll be using MrChromebox's [firmware utility script](https://mrchromebox.tech/#fwscript) to flash
 the UEFI firmware.
+
+Before we begin, we need to remount two folders this script will use with exec.
+Run following in `crosh` shell.
+
+```
+sudo mount /tmp -o remount,exec
+sudo mount /home/chronos/user -o remount,exec
+```
 
 I made an ascii-cast for this as well, if you want to follow along:
 
@@ -227,6 +238,9 @@ prompts.
 **Important:** Make a backup when prompted! This is why the requirements section told you to get
 2 USB flash drives. Seriously, USB drives are dirt cheap; don't skip this step.
 
+This backup does not make a bootable USB. It creates a `stock-firmware-EVE-<date>.rom` file in
+the external USB flash drive. The file is about 15 MB.
+
 After a couple minutes, you should be all set! Say goodbye to ChromeOS; by flashing this firmware
 you lose the ability to boot into ChromeOS, and you'll need to restore your firmware from the
 backup if you want to go back.
@@ -236,7 +250,7 @@ backup if you want to go back.
 Now that you're running a standard UEFI firmware, installing Ubuntu works just like on a standard
 laptop.
 
-Download an ISO image for [Ubuntu Desktop 19.04][ubuntu_dl] - other versions might work, but I make absolutely
+Download an ISO image for [Ubuntu Desktop 19.10][ubuntu_dl] - other versions might work, but I make absolutely
 no guarantees, and I won't be able to help you out if things are broken. Note that I might not be
 able to help regardless, but if you run into issues and you're not running the same distro as me,
 chances are much higher I'll shrug my shoulders and ineffectually wish you good luck, rather than
@@ -256,6 +270,10 @@ You should now boot into the Ubuntu installer.
 unless you wiggle the cursor when the system is booting. If your mouse cursor isn't working in the
 installer (or in the stock Ubuntu install afterward), try rebooting and continuously moving your
 finger around on the trackpad while the system starts.
+
+Your screen might come up upside down. This is due to auto screen rotation. You can rotate your machine
+upside down, then click triangle at top right, and click the button with lock sign inside rotating arrows.
+This will "lock screen rotation" so it will stay in the correct direction.
 
 Now you can go ahead and install Ubuntu using the standard method. The installer defaults should all
 work fine, although I recommend encrypting your disk, or at least enabling LVM for volume management.
@@ -283,12 +301,15 @@ git config --global user.email "your@email.com"
 Now clone this repository:
 
 ```bash
-git clone https://github.com/yusefnapora/pixelbook-linux
+git clone https://github.com/flantel/pixelbook-linux
 ```
 
-Enter the `pixelbook-linux` directory and run the install script:
+Enter the `pixelbook-linux` directory and run following:
 
 ```bash
+sudo apt-get install gcc-8 g++-8
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
+sudo mkdir /etc/libinput
 cd pixelbook-linux
 ./run-ansible.sh
 ```
@@ -297,8 +318,28 @@ The script will ask you a couple of questions, after which it will spend ~20 min
 downloading and installing stuff. If you don't know how to answer the questions, just
 accept the defaults.
 
-If everything goes well, the script should complete successfully, and you can now
-reboot:
+If everything goes well, the script should complete successfully.
+
+Optionally, if you want to see which-kernel-is-which in boot menu, you can edit grub config:
+
+```bash
+sudo gedit /etc/default/grub
+```
+
+There, update `GRUB_TIMEOUT` and add `GRUB_TIMEOUT_STYLE`.
+
+```
+GRUB_TIMEOUT=5
+GRUB_TIMEOUT_STYLE="menu"
+```
+
+After saving the file, you have to run:
+
+```bash
+sudo update-grub
+```
+
+Now you can reboot:
 
 ```bash
 sudo reboot
@@ -308,6 +349,18 @@ When the system comes back up, you should boot into the ChromiumOS-flavored kern
 You'll be able to tell that you're using the correct kernel by the display backlight
 becoming very dim just after boot. Once the GUI is up, you can adjust the backlight
 using the Gnome slider in the upper-right corner.
+
+Once you are logged in, you can also check the kernel version with `uname -r`. You should
+see something like `4.4.205chromium-gdc1f94d5` and not `5.something.something`. If that holds,
+you can go ahead and drop the old kernel. This is optional.
+
+```bash
+sudo apt-get purge linux-image*
+sudo apt-get autoremove
+```
+
+Feel free to do another restart to make sure it still works.
+
 
 ### After the install
 
@@ -419,4 +472,4 @@ Do NOT remove `/opt/google` - it contains some files needed by the audio setup.
 [ansible]: https://ansible.com
 [pixelbook_product_page]: https://www.google.com/chromebook/device/google-pixelbook/
 [suzyqable]: https://www.sparkfun.com/products/14746
-[ubuntu_dl]: https://www.ubuntu.com/download/desktop/thank-you?country=US&version=19.04&architecture=amd64
+[ubuntu_dl]: https://releases.ubuntu.com/19.10/ubuntu-19.10-desktop-amd64.iso

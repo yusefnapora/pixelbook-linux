@@ -12,6 +12,11 @@
       default: "rightmeta"
       private: no
 
+    - name: "eve_keyboard_emulate_chromebook"
+      prompt: "Do you want to use Chrome top key definitions instead of F1 - F10?\n"
+      default: "yes"
+      private: no
+
   tasks:
   - name: Install pre-requisites 
     include_role:
