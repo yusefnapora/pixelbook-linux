@@ -12,7 +12,7 @@
 
       # For bluetooth selinux fix
       - selinux-policy
-      - python2-libselinux
+      - python3-libselinux
 
       # Audio / CRAS dependencies
       - acpid
