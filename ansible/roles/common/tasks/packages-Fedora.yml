@@ -6,7 +6,6 @@
       # essential build tools (gcc, make, etc)
       - "@development-tools"
       - libtool
-      - python
       - python3
 
       # For bluetooth selinux fix

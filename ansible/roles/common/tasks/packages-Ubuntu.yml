@@ -6,7 +6,6 @@
       # essential build tools (gcc, make, etc)
       - build-essential
       - libtool
-      - python
       - python3
       - pkg-config
 
