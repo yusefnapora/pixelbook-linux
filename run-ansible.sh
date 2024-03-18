@@ -30,7 +30,7 @@ fi
 
 # make sure we have the minimum packages to run ansible
 install_if_missing git
-install_if_missing python
+install_if_missing python3
 install_if_missing ansible
 
 if ! grep user $HOME/.gitconfig >/dev/null 2>&1; then
